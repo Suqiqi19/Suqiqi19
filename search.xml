@@ -1,99 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>多智能体对抗</title>
-    <url>/2023/03/13/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AF%B9%E6%8A%97/</url>
-    <content><![CDATA[<h1 id="毕业设计思路及实现"><a href="#毕业设计思路及实现" class="headerlink" title="毕业设计思路及实现"></a>毕业设计思路及实现</h1><h2 id="无人机集群空战攻防对抗模型设计"><a href="#无人机集群空战攻防对抗模型设计" class="headerlink" title="无人机集群空战攻防对抗模型设计"></a>无人机集群空战攻防对抗模型设计</h2><h3 id="对抗场景模型设计"><a href="#对抗场景模型设计" class="headerlink" title="对抗场景模型设计"></a>对抗场景模型设计</h3><span id="more"></span>
-<ol>
-<li><h4 id="作战单元设计"><a href="#作战单元设计" class="headerlink" title="作战单元设计"></a>作战单元设计</h4><ul>
-<li><p>单元种类</p>
-<ul>
-<li>攻击单元</li>
-<li>探测单元</li>
-</ul>
-</li>
-<li><p>单元数量</p>
-<ul>
-<li>3个</li>
-<li>2个</li>
-</ul>
-</li>
-<li><p>位置分布</p>
-<p>​    对称分布在两侧</p>
-</li>
-<li><p>单元属性</p>
-<ul>
-<li>攻击单元：单元大小$size$，攻击范围$scope$，位置坐标$(pos_x ，pos_y),$速度$(vel_x,vel_y)$，周围敌方智能体数量$num_adv$ , 有效攻击次数$times_{attack}$,被攻击次数$num_{hited}$。</li>
-<li>探测单元：单元大小$size$，攻击范围$scope$，位置坐标$(pos_x ，pos_y),$速度$(vel_x,vel_y)$，周围敌方智能体数量$num_adv$ , 有效攻击次数$times_{search}$,被攻击次数$num_{hited}$。</li>
-</ul>
-</li>
-</ul>
-</li>
-<li><h4 id="对抗规则设计"><a href="#对抗规则设计" class="headerlink" title="对抗规则设计"></a>对抗规则设计</h4><p>红方采用智能算法控制，使智能体自主决策，蓝方采用既定对抗策略。</p>
-<h5 id="红方算法选择"><a href="#红方算法选择" class="headerlink" title="红方算法选择"></a>红方算法选择</h5><ul>
-<li>MADDPG</li>
-</ul>
-<h5 id="蓝方对抗策略"><a href="#蓝方对抗策略" class="headerlink" title="蓝方对抗策略"></a>蓝方对抗策略</h5><h6 id="攻击单元"><a href="#攻击单元" class="headerlink" title="攻击单元"></a>攻击单元</h6><ul>
-<li>当攻击范围内无处于探测单元探测视角下的被攻击单元，则趋向最近的该类型单元； </li>
-<li>否则，攻击单元静止并转为攻击状态</li>
-</ul>
-<h6 id="探测单元"><a href="#探测单元" class="headerlink" title="探测单元"></a>探测单元</h6><ul>
-<li>当探测范围内有被探测单元，探测单元静止；</li>
-<li>当探测范围内无被探测单元时，如存在未被探测到攻击己方单元的敌方攻击单元，则趋向最近的该类型单元；</li>
-<li>否则趋向最近的被探测单元。</li>
-</ul>
-</li>
-<li><h4 id="判别规则设计"><a href="#判别规则设计" class="headerlink" title="判别规则设计"></a>判别规则设计</h4><p>胜负性判别：设置最大仿真步数为25步，在对局结束时按照双方各单元攻击次数/探测次数与被攻击/探测次数大小比较判定。</p>
-</li>
-</ol>
-<h3 id="动作设计"><a href="#动作设计" class="headerlink" title="动作设计"></a>动作设计</h3><p>​    考虑智能体在二维平面内移动，动作为连续动作，时间离散。加速度和速度都是连续有界的。</p>
-<h3 id="状态观测"><a href="#状态观测" class="headerlink" title="状态观测"></a>状态观测</h3><p>​    智能体获得己方智能体的位置，速度信息，以及在智能体攻击或探测范围内的智能体信息。</p>
-<h3 id="奖励设计"><a href="#奖励设计" class="headerlink" title="奖励设计"></a>奖励设计</h3><h4 id="定性设计"><a href="#定性设计" class="headerlink" title="定性设计"></a>定性设计</h4><p><img src="/2023/03/13/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AF%B9%E6%8A%97/奖励函数设计.jpg" alt="奖励函数设计"></p>
-<h4 id="定量设计"><a href="#定量设计" class="headerlink" title="定量设计"></a>定量设计</h4><p>$reward = r_episode+r_attack+r_search$</p>
-<h5 id="回合奖励"><a href="#回合奖励" class="headerlink" title="回合奖励"></a>回合奖励</h5><script type="math/tex; mode=display">
-r\_episode=\left\{
-\begin{align}
-+100 \\
--100
-\end{align}
-\right.</script><p>攻击单元奖励函数设计</p>
-<script type="math/tex; mode=display">
-r=r_{1}+r_{2}+r_{3}\\
-\left\{
-\begin{align}
-r_{1}&=r_{1}+10,    \qquad 攻击敌方一次\\
-r_{2}&=r_{2}-10,    \qquad 被攻击一次\\
-r_{3}&=r_{3}-5,    \qquad 被探测一次\\
-r_{4}&=r_{4}-5,\qquad 碰撞边界
-\end{align}
-\right.</script><h5 id="探测单元奖励函数设计"><a href="#探测单元奖励函数设计" class="headerlink" title="探测单元奖励函数设计"></a>探测单元奖励函数设计</h5><script type="math/tex; mode=display">
-r=r_{1}+r_{2}+r_{3}\\
-\left\{
-\begin{align}
-r_{1}&=r_{1}+8,    \qquad 探测敌方一次\\
-r_{2}&=r_{2}-8,    \qquad 被攻击一次\\
-r_{3}&=r_{3}-4,    \qquad 被探测一次\\
-r_{4}&=r_{4}-5,\qquad 碰撞边界
-\end{align}
-\right.</script><h2 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h2><h3 id="平台"><a href="#平台" class="headerlink" title="平台"></a>平台</h3><p>实验软件环境为 Windows10 操作系统; pytorch深度学习框架；硬件环境为Intel(R) Core(TM) i7-9750H CPU；NVIDIA GeForce GTX 1650</p>
-<h3 id="仿真环境"><a href="#仿真环境" class="headerlink" title="仿真环境"></a>仿真环境</h3><p>基础环境：<a href="https://github.com/openai/multiagent-particle-envs">Multi-Agent Particle Environment</a>环境<br>根据对抗场景设计，构建自己的环境。</p>
-<h3 id="算法原理"><a href="#算法原理" class="headerlink" title="算法原理"></a>算法原理</h3><p>算法模型由多个DDPG网络组成，每个网络学习policy π (Actor) 和 action value Q (Critic)；同时具有target network，用于Q-learning的off-policy学习。算法架构图如下：</p>
-<p><img src="/2023/03/13/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AF%B9%E6%8A%97/总览图.png" alt="总览图"></p>
-<p>每个智能体用 Actor-Critic 的方法训练，在 MADDPG 中每个智能体的 Critic 部分都能够获得其他智能体的策略信息。具体来说，考虑一个有$N$个智能体的博弈，每个智能体的策略参数为$\theta = \left \{  \theta_{1},…\theta_{N}  \right \}$ ,记$\pi = \left \{ \pi_{1},……,\pi_{N} \right \} $ 为所有智能体的策略集合，那么我们可以写出在随机性策略情况下每个智能体的累积期望奖励$J\left(\theta_{i}\right)=E_{s \sim \rho^{\pi}, a_{i} \sim \pi_{\theta_{i}}}\left[\sum_{t=0}^{\infty} \gamma^{t} r_{i, t}\right]$ ,针对随机策略，求策略梯度为：</p>
-<script type="math/tex; mode=display">
-J\left(\theta_{i}\right)=E_{s \sim \rho^{\pi}, a_{i} \sim \pi_{\theta_{i}}}\left[\sum_{t=0}^{\infty} \gamma^{t} r_{i, t}\right]\nabla_{\theta_{i}} J\left(\theta_{i}\right)=\mathbb{E}_{s \sim p^{\mu}, a \sim \pi_{i}}\left[\nabla_{\theta_{i}} \log \pi_{i}\left(a_{i} \mid o_{i}\right) Q_{i}^{\pi}\left(\mathbf{x}, a_{1}, \ldots, a_{N}\right)\right]</script><p>其中，$Q_{i}^{\pi}\left(\mathbf{x}, a_{1}, \ldots, a_{N}\right)$就是一个中心化的动作价值函数。为什么说$Q_{i}$是一个中心化的动作价值函数呢？一般来说$x=(o_{1},…,o_{N})$包含了所有智能体的观测，另外$Q_{i}$也需要输入所有智能体在此刻的动作，因此$Q_{i}$工作的前提就是所有智能体要同时给出自己的观测和相应的动作。</p>
-<p>对于确定性策略来说，考虑现在有N个连续的策略$\mu _{\theta _{i}}$，可以得到 DDPG 的梯度公式：</p>
-<script type="math/tex; mode=display">
-\nabla_{\theta_i} J\left(\mu_i\right)=\mathbb{E}_{\mathbf{x} \sim \mathcal{D}}\left[\left.\nabla_{\theta_i} \mu_i\left(o_i\right) \nabla_{a_i} Q_i^\mu\left(\mathbf{x}, a_1, \ldots, a_N\right)\right|_{a_i=\mu_i\left(o_i\right)}\right]</script><p>其中，$D$是我们用来存储数据的经验回放池，它存储的每一个数据为$\left(\mathbf{x}, \mathbf{x}^{\prime}, a_1, \ldots, a_N, r_1, \ldots, r_N\right)$。而在 MADDPG 中，中心化动作价值函数可以按照下面的损失函数来更新：</p>
-<script type="math/tex; mode=display">
-\mathcal{L}\left(\omega_i\right)=\mathbb{E}_{\mathbf{x}, a, r, \mathbf{x}^{\prime}}\left[\left(Q_i^\mu\left(\mathbf{x}, a_1, \ldots, a_N\right)-y\right)^2\right], \quad y=r_i+\left.\gamma Q_i^{\mu^{\prime}}\left(\mathbf{x}^{\prime}, a_1^{\prime}, \ldots, a_N^{\prime}\right)\right|_{a_j^{\prime}=\mu_j^{\prime}\left(o_j\right)}</script><p>流程为：</p>
-<p><img src="/2023/03/13/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AF%B9%E6%8A%97/伪代码.png" alt="伪代码"></p>
-<h3 id="关键代码实现"><a href="#关键代码实现" class="headerlink" title="关键代码实现"></a>关键代码实现</h3>]]></content>
+    <title>Hello World</title>
+    <url>/2023/03/09/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<span id="more"></span>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
       <categories>
-        <category>毕设</category>
+        <category>hexo</category>
       </categories>
       <tags>
-        <tag>毕设</tag>
+        <tag>hexo</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>hexo博客</title>
+    <url>/2023/03/09/hexo%E5%8D%9A%E5%AE%A2/</url>
+    <content><![CDATA[<h1 id="在gitee搭建hexo"><a href="#在gitee搭建hexo" class="headerlink" title="在gitee搭建hexo"></a>在gitee搭建hexo</h1><h4 id="安装Node-js环境"><a href="#安装Node-js环境" class="headerlink" title="安装Node.js环境"></a>安装Node.js环境</h4><p><a href="http://nodejs.cn/download/">http://nodejs.cn/download/</a> </p>
+<span id="more"></span>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 确认node.js安装成功：运行下面两个命令打印版本号即可</span></span><br><span class="line">node -v</span><br><span class="line">npm  -v</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装 Node.js 淘宝镜像加速器 （cnpm）</span></span><br><span class="line">npm install -g cnpm --registry=https://registry.npm.taobao.org</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改 node 类库默认安装位置</span></span><br><span class="line"><span class="comment"># 默认是在 C:\Users\lingStudy\AppData\Roaming\npm</span></span><br><span class="line"></span><br><span class="line">npm config <span class="built_in">set</span> prefix <span class="string">&quot;D:\nodejs安装路径\node_global&quot;</span></span><br><span class="line">npm config <span class="built_in">set</span> cache <span class="string">&quot;D:\nodejs安装路径\node_cache&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#尤其要注意环境变量的设置</span></span><br><span class="line"><span class="comment"># 查看修改是否成功</span></span><br><span class="line">npm root -g</span><br><span class="line"><span class="comment"># 然后把D:\install\node\node_global配置到环境变量的 PATH 下即可</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="安装版本控制工具-Git"><a href="#安装版本控制工具-Git" class="headerlink" title="安装版本控制工具 Git"></a>安装版本控制工具 Git</h4><p>用来将本地项目托管到码云，所以还需要自己注册一个码云的账号。</p>
+<p><a href="https://git-scm.com/download">https://git-scm.com/download</a></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Git一些重要配置</span></span><br><span class="line">git config --global user.name <span class="string">&quot;lxxxxdy&quot;</span>  <span class="comment">#码云用户名</span></span><br><span class="line">git config --global user.email <span class="string">&quot;xxx83@qq.com&quot;</span>   <span class="comment">#邮箱</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成SSH公钥并添加到码云，实现免密码登录</span></span><br><span class="line"><span class="comment"># 1、生成公钥</span></span><br><span class="line">ssh-keygen -t rsa</span><br><span class="line"><span class="comment"># 2、进入 C:\Users\主机名\.ssh 目录，把 id_rsa.pub 里面的信息复制到码云的 SSH公钥 中即可</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="Hexo-官网"><a href="#Hexo-官网" class="headerlink" title="Hexo 官网"></a>Hexo 官网</h4><p> <a href="https://hexo.io/zh-cn/">https://hexo.io/zh-cn/</a></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 初始化一个项目，hexoblog 是项目名</span></span><br><span class="line">hexo init  hexoblog</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1、进入hexoblog项目目录</span></span><br><span class="line"><span class="built_in">cd</span> hexoblog</span><br><span class="line"><span class="comment">#/2、安装 hexoblog 项目的依赖包</span></span><br><span class="line">npm install</span><br><span class="line"><span class="comment">#/3、启动 hexoblog 项目服务</span></span><br><span class="line">hexo server</span><br><span class="line"><span class="comment">#此时，访问 http://localhost:4000/ 即可看到 hexo 默认的页面和一篇“Hello World”默认生成的文章</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">.</span><br><span class="line">├── .deploy       <span class="comment"># 需要部署的文件</span></span><br><span class="line">├── node_modules  <span class="comment"># 项目所有的依赖包和插件</span></span><br><span class="line">├── public        <span class="comment"># 生成的静态网页文件</span></span><br><span class="line">├── scaffolds     <span class="comment"># 文章模板</span></span><br><span class="line">├── <span class="built_in">source</span>        <span class="comment"># 博客正文和其他源文件等都应该放在这里</span></span><br><span class="line">|   ├── _drafts   <span class="comment"># 草稿</span></span><br><span class="line">|   └── _posts    <span class="comment"># 文章</span></span><br><span class="line">├── themes        <span class="comment"># 主题</span></span><br><span class="line">├── _config.yml   <span class="comment"># 全局配置文件</span></span><br><span class="line">└── package.json  <span class="comment"># 项目依赖信息</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="将项目部署到码云"><a href="#将项目部署到码云" class="headerlink" title="将项目部署到码云"></a>将项目部署到码云</h4><p>在码云新建一个仓库,仓库名和路径要与用户名一致。</p>
+<p>在项目根目录下安装git部署插件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 之后就可以使用 hexo deploy（或简写 hexo d）将项目部署到gitee远程仓库</span></span><br><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
+<p>修改项目配置文件：_config.yml，在最下面，修改如下内容</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">仓库URL地址</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">master</span></span><br></pre></td></tr></table></figure>
+<p>使用命令 <strong>hexo d</strong> 将项目部署到 gitee 远程仓库，此时本地文件夹中出现有一个public文件夹。</p>
+<p>开启 Gitee Pages 静态网页托管服务</p>
+<p>next主题优化网上很多。</p>
+]]></content>
+      <categories>
+        <category>hexo</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+        <tag>gitee</tag>
       </tags>
   </entry>
   <entry>
@@ -126,52 +79,6 @@ J\left(\theta_{i}\right)=E_{s \sim \rho^{\pi}, a_{i} \sim \pi_{\theta_{i}}}\left
       </categories>
       <tags>
         <tag>多智能体强化学习</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>探索与利用</title>
-    <url>/2023/03/13/%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%88%A9%E7%94%A8/</url>
-    <content><![CDATA[<h1 id="探索与利用"><a href="#探索与利用" class="headerlink" title="探索与利用"></a>探索与利用</h1><h3 id="序列决策任务中的一个基本问题"><a href="#序列决策任务中的一个基本问题" class="headerlink" title="序列决策任务中的一个基本问题"></a>序列决策任务中的一个基本问题</h3><ul>
-<li>Exploitation: 执行能够获得已知最优收益的决策</li>
-<li>Exploration: 尝试更多可能的决策，但不一定是最优收益</li>
-</ul>
-<span id="more"></span>
-<h3 id="策略探索的一些原则"><a href="#策略探索的一些原则" class="headerlink" title="策略探索的一些原则"></a>策略探索的一些原则</h3><ul>
-<li>朴素方法（Naive Exploration)</li>
-</ul>
-<ul>
-<li>添加策略噪声 e-greddy</li>
-</ul>
-<ul>
-<li>积极初始化（Optimistic initialization)</li>
-</ul>
-<ul>
-<li><p>基于不确定性的度量(Uncertainty Measurement)</p>
-<ul>
-<li>​    不确定性越大，越有探索价值</li>
-</ul>
-</li>
-</ul>
-<pre><code>- ​    上置信界
-</code></pre><p>​    <img src="/2023/03/13/%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%88%A9%E7%94%A8/上置信.png" alt="上置信"></p>
-<ul>
-<li>概率匹配(Probability Matching)</li>
-</ul>
-<h3 id="多动臂老虎机"><a href="#多动臂老虎机" class="headerlink" title="多动臂老虎机"></a>多动臂老虎机</h3><h4 id="几个点"><a href="#几个点" class="headerlink" title="几个点:"></a>几个点:</h4><p>期望收益采用增量式更新，时间复杂度和空间复杂度都减小。</p>
-<p>懊悔值：$ R(a^i)=Q^\star-Q(a^i) $</p>
-<p>总懊悔值  ：$\sum_{t=1}^{T}R(a_{t})$</p>
-<p>最小化懊悔值 等价于 最大化期望收益</p>
-<p>$\sigma_{R}$有下界</p>
-<h4 id="贪心策略和-varepsilon-greddy-贪心算法"><a href="#贪心策略和-varepsilon-greddy-贪心算法" class="headerlink" title="贪心策略和$ \varepsilon -greddy$贪心算法"></a>贪心策略和$ \varepsilon -greddy$贪心算法</h4><p><img src="/2023/03/13/%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%88%A9%E7%94%A8/探索策略.png" alt="探索策略"></p>
-<p>​    </p>
-<p>衰减贪心策略 $\varepsilon$衰减</p>
-<p>参考资料：<a href="https://hrl.boyuai.com/chapter/1">https://hrl.boyuai.com/chapter/1</a></p>
-]]></content>
-      <categories>
-        <category>RL</category>
-      </categories>
-      <tags>
-        <tag>强化学习</tag>
       </tags>
   </entry>
   <entry>
@@ -295,21 +202,6 @@ Q_{\pi}(s, a) & =\mathbb{E}_{\pi}\left[R_{t+1}+\gamma R_{t+2}+\gamma^{2} R_{t+3}
       </tags>
   </entry>
   <entry>
-    <title>效用理论</title>
-    <url>/2023/03/10/%E6%95%88%E7%94%A8%E7%90%86%E8%AE%BA/</url>
-    <content><![CDATA[<h2 id="效用理论"><a href="#效用理论" class="headerlink" title="效用理论"></a>效用理论</h2><h3 id="理解效用的概念"><a href="#理解效用的概念" class="headerlink" title="理解效用的概念"></a>理解效用的概念</h3><p>效用就是偏好的量化，是数(实值函数)，反映结果值对决策者价值和作用大小的量值 称为效用。</p>
-<span id="more"></span>
-<h3 id="掌握效用，效用函数的定义"><a href="#掌握效用，效用函数的定义" class="headerlink" title="掌握效用，效用函数的定义"></a>掌握效用，效用函数的定义</h3><p>在集合 T 上的实值函数 u，若它和 T 上的优先关系“≽ ”一致，即：若 T , T 1∈ T， T2 ≽T 当且仅当 u(T1 ) ≥ u(T2),则称 u 为效用函数。</p>
-<p>（文字表述）:设决策问题的各可行方案有多种可能的结果值 o，依据决策者的主 观愿望和价值倾向，每个结果值对决策者有不同的价值和作用。反映结果值 o 对决策者价值 和作用大小的量值称为效用，记作：u=u(o)</p>
-<h3 id="效用确定的方法"><a href="#效用确定的方法" class="headerlink" title="效用确定的方法"></a>效用确定的方法</h3><h3 id="效用有界性和存在性证明"><a href="#效用有界性和存在性证明" class="headerlink" title="效用有界性和存在性证明"></a>效用有界性和存在性证明</h3><h3 id="效用函数的构造方法"><a href="#效用函数的构造方法" class="headerlink" title="效用函数的构造方法"></a>效用函数的构造方法</h3><h3 id="熟悉基数效用和序数效用"><a href="#熟悉基数效用和序数效用" class="headerlink" title="熟悉基数效用和序数效用"></a>熟悉基数效用和序数效用</h3><h3 id="风险态度与效用关系"><a href="#风险态度与效用关系" class="headerlink" title="风险态度与效用关系"></a>风险态度与效用关系</h3><h3 id="货币的效用"><a href="#货币的效用" class="headerlink" title="货币的效用"></a>货币的效用</h3><h3 id="总效用与边际效用"><a href="#总效用与边际效用" class="headerlink" title="总效用与边际效用"></a>总效用与边际效用</h3>]]></content>
-      <categories>
-        <category>F0601</category>
-      </categories>
-      <tags>
-        <tag>F0601</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>决策的基本概念</title>
     <url>/2023/03/10/%E5%86%B3%E7%AD%96%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</url>
     <content><![CDATA[<h2 id="决策的基本概念"><a href="#决策的基本概念" class="headerlink" title="决策的基本概念"></a>决策的基本概念</h2><span id="more"></span>
@@ -391,52 +283,160 @@ Q_{\pi}(s, a) & =\mathbb{E}_{\pi}\left[R_{t+1}+\gamma R_{t+2}+\gamma^{2} R_{t+3}
       </tags>
   </entry>
   <entry>
-    <title>hexo博客</title>
-    <url>/2023/03/09/hexo%E5%8D%9A%E5%AE%A2/</url>
-    <content><![CDATA[<h1 id="在gitee搭建hexo"><a href="#在gitee搭建hexo" class="headerlink" title="在gitee搭建hexo"></a>在gitee搭建hexo</h1><h4 id="安装Node-js环境"><a href="#安装Node-js环境" class="headerlink" title="安装Node.js环境"></a>安装Node.js环境</h4><p><a href="http://nodejs.cn/download/">http://nodejs.cn/download/</a> </p>
+    <title>探索与利用</title>
+    <url>/2023/03/13/%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%88%A9%E7%94%A8/</url>
+    <content><![CDATA[<h1 id="探索与利用"><a href="#探索与利用" class="headerlink" title="探索与利用"></a>探索与利用</h1><h3 id="序列决策任务中的一个基本问题"><a href="#序列决策任务中的一个基本问题" class="headerlink" title="序列决策任务中的一个基本问题"></a>序列决策任务中的一个基本问题</h3><ul>
+<li>Exploitation: 执行能够获得已知最优收益的决策</li>
+<li>Exploration: 尝试更多可能的决策，但不一定是最优收益</li>
+</ul>
 <span id="more"></span>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 确认node.js安装成功：运行下面两个命令打印版本号即可</span></span><br><span class="line">node -v</span><br><span class="line">npm  -v</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装 Node.js 淘宝镜像加速器 （cnpm）</span></span><br><span class="line">npm install -g cnpm --registry=https://registry.npm.taobao.org</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改 node 类库默认安装位置</span></span><br><span class="line"><span class="comment"># 默认是在 C:\Users\lingStudy\AppData\Roaming\npm</span></span><br><span class="line"></span><br><span class="line">npm config <span class="built_in">set</span> prefix <span class="string">&quot;D:\nodejs安装路径\node_global&quot;</span></span><br><span class="line">npm config <span class="built_in">set</span> cache <span class="string">&quot;D:\nodejs安装路径\node_cache&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#尤其要注意环境变量的设置</span></span><br><span class="line"><span class="comment"># 查看修改是否成功</span></span><br><span class="line">npm root -g</span><br><span class="line"><span class="comment"># 然后把D:\install\node\node_global配置到环境变量的 PATH 下即可</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h4 id="安装版本控制工具-Git"><a href="#安装版本控制工具-Git" class="headerlink" title="安装版本控制工具 Git"></a>安装版本控制工具 Git</h4><p>用来将本地项目托管到码云，所以还需要自己注册一个码云的账号。</p>
-<p><a href="https://git-scm.com/download">https://git-scm.com/download</a></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Git一些重要配置</span></span><br><span class="line">git config --global user.name <span class="string">&quot;lxxxxdy&quot;</span>  <span class="comment">#码云用户名</span></span><br><span class="line">git config --global user.email <span class="string">&quot;xxx83@qq.com&quot;</span>   <span class="comment">#邮箱</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成SSH公钥并添加到码云，实现免密码登录</span></span><br><span class="line"><span class="comment"># 1、生成公钥</span></span><br><span class="line">ssh-keygen -t rsa</span><br><span class="line"><span class="comment"># 2、进入 C:\Users\主机名\.ssh 目录，把 id_rsa.pub 里面的信息复制到码云的 SSH公钥 中即可</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h4 id="Hexo-官网"><a href="#Hexo-官网" class="headerlink" title="Hexo 官网"></a>Hexo 官网</h4><p> <a href="https://hexo.io/zh-cn/">https://hexo.io/zh-cn/</a></p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 初始化一个项目，hexoblog 是项目名</span></span><br><span class="line">hexo init  hexoblog</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1、进入hexoblog项目目录</span></span><br><span class="line"><span class="built_in">cd</span> hexoblog</span><br><span class="line"><span class="comment">#/2、安装 hexoblog 项目的依赖包</span></span><br><span class="line">npm install</span><br><span class="line"><span class="comment">#/3、启动 hexoblog 项目服务</span></span><br><span class="line">hexo server</span><br><span class="line"><span class="comment">#此时，访问 http://localhost:4000/ 即可看到 hexo 默认的页面和一篇“Hello World”默认生成的文章</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">.</span><br><span class="line">├── .deploy       <span class="comment"># 需要部署的文件</span></span><br><span class="line">├── node_modules  <span class="comment"># 项目所有的依赖包和插件</span></span><br><span class="line">├── public        <span class="comment"># 生成的静态网页文件</span></span><br><span class="line">├── scaffolds     <span class="comment"># 文章模板</span></span><br><span class="line">├── <span class="built_in">source</span>        <span class="comment"># 博客正文和其他源文件等都应该放在这里</span></span><br><span class="line">|   ├── _drafts   <span class="comment"># 草稿</span></span><br><span class="line">|   └── _posts    <span class="comment"># 文章</span></span><br><span class="line">├── themes        <span class="comment"># 主题</span></span><br><span class="line">├── _config.yml   <span class="comment"># 全局配置文件</span></span><br><span class="line">└── package.json  <span class="comment"># 项目依赖信息</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
-<h4 id="将项目部署到码云"><a href="#将项目部署到码云" class="headerlink" title="将项目部署到码云"></a>将项目部署到码云</h4><p>在码云新建一个仓库,仓库名和路径要与用户名一致。</p>
-<p>在项目根目录下安装git部署插件</p>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 之后就可以使用 hexo deploy（或简写 hexo d）将项目部署到gitee远程仓库</span></span><br><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
-<p>修改项目配置文件：_config.yml，在最下面，修改如下内容</p>
-<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">仓库URL地址</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">master</span></span><br></pre></td></tr></table></figure>
-<p>使用命令 <strong>hexo d</strong> 将项目部署到 gitee 远程仓库，此时本地文件夹中出现有一个public文件夹。</p>
-<p>开启 Gitee Pages 静态网页托管服务</p>
-<p>next主题优化网上很多。</p>
+<h3 id="策略探索的一些原则"><a href="#策略探索的一些原则" class="headerlink" title="策略探索的一些原则"></a>策略探索的一些原则</h3><ul>
+<li>朴素方法（Naive Exploration)</li>
+</ul>
+<ul>
+<li>添加策略噪声 e-greddy</li>
+</ul>
+<ul>
+<li>积极初始化（Optimistic initialization)</li>
+</ul>
+<ul>
+<li><p>基于不确定性的度量(Uncertainty Measurement)</p>
+<ul>
+<li>​    不确定性越大，越有探索价值</li>
+</ul>
+</li>
+</ul>
+<pre><code>- ​    上置信界
+</code></pre><p>​    <img src="/2023/03/13/%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%88%A9%E7%94%A8/上置信.png" alt="上置信"></p>
+<ul>
+<li>概率匹配(Probability Matching)</li>
+</ul>
+<h3 id="多动臂老虎机"><a href="#多动臂老虎机" class="headerlink" title="多动臂老虎机"></a>多动臂老虎机</h3><h4 id="几个点"><a href="#几个点" class="headerlink" title="几个点:"></a>几个点:</h4><p>期望收益采用增量式更新，时间复杂度和空间复杂度都减小。</p>
+<p>懊悔值：$ R(a^i)=Q^\star-Q(a^i) $</p>
+<p>总懊悔值  ：$\sum_{t=1}^{T}R(a_{t})$</p>
+<p>最小化懊悔值 等价于 最大化期望收益</p>
+<p>$\sigma_{R}$有下界</p>
+<h4 id="贪心策略和-varepsilon-greddy-贪心算法"><a href="#贪心策略和-varepsilon-greddy-贪心算法" class="headerlink" title="贪心策略和$ \varepsilon -greddy$贪心算法"></a>贪心策略和$ \varepsilon -greddy$贪心算法</h4><p><img src="/2023/03/13/%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%88%A9%E7%94%A8/探索策略.png" alt="探索策略"></p>
+<p>​    </p>
+<p>衰减贪心策略 $\varepsilon$衰减</p>
+<p>参考资料：<a href="https://hrl.boyuai.com/chapter/1">https://hrl.boyuai.com/chapter/1</a></p>
 ]]></content>
       <categories>
-        <category>hexo</category>
+        <category>RL</category>
       </categories>
       <tags>
-        <tag>hexo</tag>
-        <tag>gitee</tag>
+        <tag>强化学习</tag>
       </tags>
   </entry>
   <entry>
-    <title>Hello World</title>
-    <url>/2023/03/09/hello-world/</url>
-    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
-<span id="more"></span>
-<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
-<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
-<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
-<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
-<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
-]]></content>
+    <title>多智能体对抗</title>
+    <url>/2023/03/13/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AF%B9%E6%8A%97/</url>
+    <content><![CDATA[<h1 id="毕业设计思路及实现"><a href="#毕业设计思路及实现" class="headerlink" title="毕业设计思路及实现"></a>毕业设计思路及实现</h1><h2 id="无人机集群空战攻防对抗模型设计"><a href="#无人机集群空战攻防对抗模型设计" class="headerlink" title="无人机集群空战攻防对抗模型设计"></a>无人机集群空战攻防对抗模型设计</h2><h3 id="对抗场景模型设计"><a href="#对抗场景模型设计" class="headerlink" title="对抗场景模型设计"></a>对抗场景模型设计</h3><span id="more"></span>
+<ol>
+<li><h4 id="作战单元设计"><a href="#作战单元设计" class="headerlink" title="作战单元设计"></a>作战单元设计</h4><ul>
+<li><p>单元种类</p>
+<ul>
+<li>攻击单元</li>
+<li>探测单元</li>
+</ul>
+</li>
+<li><p>单元数量</p>
+<ul>
+<li>3个</li>
+<li>2个</li>
+</ul>
+</li>
+<li><p>位置分布</p>
+<p>​    对称分布在两侧</p>
+</li>
+<li><p>单元属性</p>
+<ul>
+<li>攻击单元：单元大小$size$，攻击范围$scope$，位置坐标$(pos_x ，pos_y),$速度$(vel_x,vel_y)$，周围敌方智能体数量$num_adv$ , 有效攻击次数$times_{attack}$,被攻击次数$num_{hited}$。</li>
+<li>探测单元：单元大小$size$，攻击范围$scope$，位置坐标$(pos_x ，pos_y),$速度$(vel_x,vel_y)$，周围敌方智能体数量$num_adv$ , 有效攻击次数$times_{search}$,被攻击次数$num_{hited}$。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><h4 id="对抗规则设计"><a href="#对抗规则设计" class="headerlink" title="对抗规则设计"></a>对抗规则设计</h4><p>红方采用智能算法控制，使智能体自主决策，蓝方采用既定对抗策略。</p>
+<h5 id="红方算法选择"><a href="#红方算法选择" class="headerlink" title="红方算法选择"></a>红方算法选择</h5><ul>
+<li>MADDPG</li>
+</ul>
+<h5 id="蓝方对抗策略"><a href="#蓝方对抗策略" class="headerlink" title="蓝方对抗策略"></a>蓝方对抗策略</h5><h6 id="攻击单元"><a href="#攻击单元" class="headerlink" title="攻击单元"></a>攻击单元</h6><ul>
+<li>当攻击范围内无处于探测单元探测视角下的被攻击单元，则趋向最近的该类型单元； </li>
+<li>否则，攻击单元静止并转为攻击状态</li>
+</ul>
+<h6 id="探测单元"><a href="#探测单元" class="headerlink" title="探测单元"></a>探测单元</h6><ul>
+<li>当探测范围内有被探测单元，探测单元静止；</li>
+<li>当探测范围内无被探测单元时，如存在未被探测到攻击己方单元的敌方攻击单元，则趋向最近的该类型单元；</li>
+<li>否则趋向最近的被探测单元。</li>
+</ul>
+</li>
+<li><h4 id="判别规则设计"><a href="#判别规则设计" class="headerlink" title="判别规则设计"></a>判别规则设计</h4><p>胜负性判别：设置最大仿真步数为25步，在对局结束时按照双方各单元攻击次数/探测次数与被攻击/探测次数大小比较判定。</p>
+</li>
+</ol>
+<h3 id="动作设计"><a href="#动作设计" class="headerlink" title="动作设计"></a>动作设计</h3><p>​    考虑智能体在二维平面内移动，动作为连续动作，时间离散。加速度和速度都是连续有界的。</p>
+<h3 id="状态观测"><a href="#状态观测" class="headerlink" title="状态观测"></a>状态观测</h3><p>​    智能体获得己方智能体的位置，速度信息，以及在智能体攻击或探测范围内的智能体信息。</p>
+<h3 id="奖励设计"><a href="#奖励设计" class="headerlink" title="奖励设计"></a>奖励设计</h3><h4 id="定性设计"><a href="#定性设计" class="headerlink" title="定性设计"></a>定性设计</h4><p><img src="/2023/03/13/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AF%B9%E6%8A%97/奖励函数设计.jpg" alt="奖励函数设计"></p>
+<h4 id="定量设计"><a href="#定量设计" class="headerlink" title="定量设计"></a>定量设计</h4><p>$reward = r_episode+r_attack+r_search$</p>
+<h5 id="回合奖励"><a href="#回合奖励" class="headerlink" title="回合奖励"></a>回合奖励</h5><script type="math/tex; mode=display">
+r\_episode=\left\{
+\begin{align}
++100 \\
+-100
+\end{align}
+\right.</script><p>攻击单元奖励函数设计</p>
+<script type="math/tex; mode=display">
+r=r_{1}+r_{2}+r_{3}\\
+\left\{
+\begin{align}
+r_{1}&=r_{1}+10,    \qquad 攻击敌方一次\\
+r_{2}&=r_{2}-10,    \qquad 被攻击一次\\
+r_{3}&=r_{3}-5,    \qquad 被探测一次\\
+r_{4}&=r_{4}-5,\qquad 碰撞边界
+\end{align}
+\right.</script><h5 id="探测单元奖励函数设计"><a href="#探测单元奖励函数设计" class="headerlink" title="探测单元奖励函数设计"></a>探测单元奖励函数设计</h5><script type="math/tex; mode=display">
+r=r_{1}+r_{2}+r_{3}\\
+\left\{
+\begin{align}
+r_{1}&=r_{1}+8,    \qquad 探测敌方一次\\
+r_{2}&=r_{2}-8,    \qquad 被攻击一次\\
+r_{3}&=r_{3}-4,    \qquad 被探测一次\\
+r_{4}&=r_{4}-5,\qquad 碰撞边界
+\end{align}
+\right.</script><h2 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h2><h3 id="平台"><a href="#平台" class="headerlink" title="平台"></a>平台</h3><p>实验软件环境为 Windows10 操作系统; pytorch深度学习框架；硬件环境为Intel(R) Core(TM) i7-9750H CPU；NVIDIA GeForce GTX 1650</p>
+<h3 id="仿真环境"><a href="#仿真环境" class="headerlink" title="仿真环境"></a>仿真环境</h3><p>基础环境：<a href="https://github.com/openai/multiagent-particle-envs">Multi-Agent Particle Environment</a>环境<br>根据对抗场景设计，构建自己的环境。</p>
+<h3 id="算法原理"><a href="#算法原理" class="headerlink" title="算法原理"></a>算法原理</h3><p>算法模型由多个DDPG网络组成，每个网络学习policy π (Actor) 和 action value Q (Critic)；同时具有target network，用于Q-learning的off-policy学习。算法架构图如下：</p>
+<p><img src="/2023/03/13/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AF%B9%E6%8A%97/总览图.png" alt="总览图"></p>
+<p>每个智能体用 Actor-Critic 的方法训练，在 MADDPG 中每个智能体的 Critic 部分都能够获得其他智能体的策略信息。具体来说，考虑一个有$N$个智能体的博弈，每个智能体的策略参数为$\theta = \left \{  \theta_{1},…\theta_{N}  \right \}$ ,记$\pi = \left \{ \pi_{1},……,\pi_{N} \right \} $ 为所有智能体的策略集合，那么我们可以写出在随机性策略情况下每个智能体的累积期望奖励$J\left(\theta_{i}\right)=E_{s \sim \rho^{\pi}, a_{i} \sim \pi_{\theta_{i}}}\left[\sum_{t=0}^{\infty} \gamma^{t} r_{i, t}\right]$ ,针对随机策略，求策略梯度为：</p>
+<script type="math/tex; mode=display">
+J\left(\theta_{i}\right)=E_{s \sim \rho^{\pi}, a_{i} \sim \pi_{\theta_{i}}}\left[\sum_{t=0}^{\infty} \gamma^{t} r_{i, t}\right]\nabla_{\theta_{i}} J\left(\theta_{i}\right)=\mathbb{E}_{s \sim p^{\mu}, a \sim \pi_{i}}\left[\nabla_{\theta_{i}} \log \pi_{i}\left(a_{i} \mid o_{i}\right) Q_{i}^{\pi}\left(\mathbf{x}, a_{1}, \ldots, a_{N}\right)\right]</script><p>其中，$Q_{i}^{\pi}\left(\mathbf{x}, a_{1}, \ldots, a_{N}\right)$就是一个中心化的动作价值函数。为什么说$Q_{i}$是一个中心化的动作价值函数呢？一般来说$x=(o_{1},…,o_{N})$包含了所有智能体的观测，另外$Q_{i}$也需要输入所有智能体在此刻的动作，因此$Q_{i}$工作的前提就是所有智能体要同时给出自己的观测和相应的动作。</p>
+<p>对于确定性策略来说，考虑现在有N个连续的策略$\mu _{\theta _{i}}$，可以得到 DDPG 的梯度公式：</p>
+<script type="math/tex; mode=display">
+\nabla_{\theta_i} J\left(\mu_i\right)=\mathbb{E}_{\mathbf{x} \sim \mathcal{D}}\left[\left.\nabla_{\theta_i} \mu_i\left(o_i\right) \nabla_{a_i} Q_i^\mu\left(\mathbf{x}, a_1, \ldots, a_N\right)\right|_{a_i=\mu_i\left(o_i\right)}\right]</script><p>其中，$D$是我们用来存储数据的经验回放池，它存储的每一个数据为$\left(\mathbf{x}, \mathbf{x}^{\prime}, a_1, \ldots, a_N, r_1, \ldots, r_N\right)$。而在 MADDPG 中，中心化动作价值函数可以按照下面的损失函数来更新：</p>
+<script type="math/tex; mode=display">
+\mathcal{L}\left(\omega_i\right)=\mathbb{E}_{\mathbf{x}, a, r, \mathbf{x}^{\prime}}\left[\left(Q_i^\mu\left(\mathbf{x}, a_1, \ldots, a_N\right)-y\right)^2\right], \quad y=r_i+\left.\gamma Q_i^{\mu^{\prime}}\left(\mathbf{x}^{\prime}, a_1^{\prime}, \ldots, a_N^{\prime}\right)\right|_{a_j^{\prime}=\mu_j^{\prime}\left(o_j\right)}</script><p>流程为：</p>
+<p><img src="/2023/03/13/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AF%B9%E6%8A%97/伪代码.png" alt="伪代码"></p>
+<h3 id="关键代码实现"><a href="#关键代码实现" class="headerlink" title="关键代码实现"></a>关键代码实现</h3>]]></content>
       <categories>
-        <category>hexo</category>
+        <category>毕设</category>
       </categories>
       <tags>
-        <tag>hexo</tag>
+        <tag>毕设</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>效用理论</title>
+    <url>/2023/03/10/%E6%95%88%E7%94%A8%E7%90%86%E8%AE%BA/</url>
+    <content><![CDATA[<h2 id="效用理论"><a href="#效用理论" class="headerlink" title="效用理论"></a>效用理论</h2><h3 id="理解效用的概念"><a href="#理解效用的概念" class="headerlink" title="理解效用的概念"></a>理解效用的概念</h3><p>效用就是偏好的量化，是数(实值函数)，反映结果值对决策者价值和作用大小的量值 称为效用。</p>
+<span id="more"></span>
+<h3 id="掌握效用，效用函数的定义"><a href="#掌握效用，效用函数的定义" class="headerlink" title="掌握效用，效用函数的定义"></a>掌握效用，效用函数的定义</h3><p>在集合 T 上的实值函数 u，若它和 T 上的优先关系“≽ ”一致，即：若 T , T 1∈ T， T2 ≽T 当且仅当 u(T1 ) ≥ u(T2),则称 u 为效用函数。</p>
+<p>（文字表述）:设决策问题的各可行方案有多种可能的结果值 o，依据决策者的主 观愿望和价值倾向，每个结果值对决策者有不同的价值和作用。反映结果值 o 对决策者价值 和作用大小的量值称为效用，记作：u=u(o)</p>
+<h3 id="效用确定的方法"><a href="#效用确定的方法" class="headerlink" title="效用确定的方法"></a>效用确定的方法</h3><h3 id="效用有界性和存在性证明"><a href="#效用有界性和存在性证明" class="headerlink" title="效用有界性和存在性证明"></a>效用有界性和存在性证明</h3><h3 id="效用函数的构造方法"><a href="#效用函数的构造方法" class="headerlink" title="效用函数的构造方法"></a>效用函数的构造方法</h3><h3 id="熟悉基数效用和序数效用"><a href="#熟悉基数效用和序数效用" class="headerlink" title="熟悉基数效用和序数效用"></a>熟悉基数效用和序数效用</h3><h3 id="风险态度与效用关系"><a href="#风险态度与效用关系" class="headerlink" title="风险态度与效用关系"></a>风险态度与效用关系</h3><h3 id="货币的效用"><a href="#货币的效用" class="headerlink" title="货币的效用"></a>货币的效用</h3><h3 id="总效用与边际效用"><a href="#总效用与边际效用" class="headerlink" title="总效用与边际效用"></a>总效用与边际效用</h3>]]></content>
+      <categories>
+        <category>F0601</category>
+      </categories>
+      <tags>
+        <tag>F0601</tag>
       </tags>
   </entry>
 </search>
