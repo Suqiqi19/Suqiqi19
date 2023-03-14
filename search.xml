@@ -1,0 +1,442 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search>
+  <entry>
+    <title>多智能体对抗</title>
+    <url>/2023/03/13/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AF%B9%E6%8A%97/</url>
+    <content><![CDATA[<h1 id="毕业设计思路及实现"><a href="#毕业设计思路及实现" class="headerlink" title="毕业设计思路及实现"></a>毕业设计思路及实现</h1><h2 id="无人机集群空战攻防对抗模型设计"><a href="#无人机集群空战攻防对抗模型设计" class="headerlink" title="无人机集群空战攻防对抗模型设计"></a>无人机集群空战攻防对抗模型设计</h2><h3 id="对抗场景模型设计"><a href="#对抗场景模型设计" class="headerlink" title="对抗场景模型设计"></a>对抗场景模型设计</h3><span id="more"></span>
+<ol>
+<li><h4 id="作战单元设计"><a href="#作战单元设计" class="headerlink" title="作战单元设计"></a>作战单元设计</h4><ul>
+<li><p>单元种类</p>
+<ul>
+<li>攻击单元</li>
+<li>探测单元</li>
+</ul>
+</li>
+<li><p>单元数量</p>
+<ul>
+<li>3个</li>
+<li>2个</li>
+</ul>
+</li>
+<li><p>位置分布</p>
+<p>​    对称分布在两侧</p>
+</li>
+<li><p>单元属性</p>
+<ul>
+<li>攻击单元：单元大小$size$，攻击范围$scope$，位置坐标$(pos_x ，pos_y),$速度$(vel_x,vel_y)$，周围敌方智能体数量$num_adv$ , 有效攻击次数$times_{attack}$,被攻击次数$num_{hited}$。</li>
+<li>探测单元：单元大小$size$，攻击范围$scope$，位置坐标$(pos_x ，pos_y),$速度$(vel_x,vel_y)$，周围敌方智能体数量$num_adv$ , 有效攻击次数$times_{search}$,被攻击次数$num_{hited}$。</li>
+</ul>
+</li>
+</ul>
+</li>
+<li><h4 id="对抗规则设计"><a href="#对抗规则设计" class="headerlink" title="对抗规则设计"></a>对抗规则设计</h4><p>红方采用智能算法控制，使智能体自主决策，蓝方采用既定对抗策略。</p>
+<h5 id="红方算法选择"><a href="#红方算法选择" class="headerlink" title="红方算法选择"></a>红方算法选择</h5><ul>
+<li>MADDPG</li>
+</ul>
+<h5 id="蓝方对抗策略"><a href="#蓝方对抗策略" class="headerlink" title="蓝方对抗策略"></a>蓝方对抗策略</h5><h6 id="攻击单元"><a href="#攻击单元" class="headerlink" title="攻击单元"></a>攻击单元</h6><ul>
+<li>当攻击范围内无处于探测单元探测视角下的被攻击单元，则趋向最近的该类型单元； </li>
+<li>否则，攻击单元静止并转为攻击状态</li>
+</ul>
+<h6 id="探测单元"><a href="#探测单元" class="headerlink" title="探测单元"></a>探测单元</h6><ul>
+<li>当探测范围内有被探测单元，探测单元静止；</li>
+<li>当探测范围内无被探测单元时，如存在未被探测到攻击己方单元的敌方攻击单元，则趋向最近的该类型单元；</li>
+<li>否则趋向最近的被探测单元。</li>
+</ul>
+</li>
+<li><h4 id="判别规则设计"><a href="#判别规则设计" class="headerlink" title="判别规则设计"></a>判别规则设计</h4><p>胜负性判别：设置最大仿真步数为25步，在对局结束时按照双方各单元攻击次数/探测次数与被攻击/探测次数大小比较判定。</p>
+</li>
+</ol>
+<h3 id="动作设计"><a href="#动作设计" class="headerlink" title="动作设计"></a>动作设计</h3><p>​    考虑智能体在二维平面内移动，动作为连续动作，时间离散。加速度和速度都是连续有界的。</p>
+<h3 id="状态观测"><a href="#状态观测" class="headerlink" title="状态观测"></a>状态观测</h3><p>​    智能体获得己方智能体的位置，速度信息，以及在智能体攻击或探测范围内的智能体信息。</p>
+<h3 id="奖励设计"><a href="#奖励设计" class="headerlink" title="奖励设计"></a>奖励设计</h3><h4 id="定性设计"><a href="#定性设计" class="headerlink" title="定性设计"></a>定性设计</h4><p><img src="/2023/03/13/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AF%B9%E6%8A%97/奖励函数设计.jpg" alt="奖励函数设计"></p>
+<h4 id="定量设计"><a href="#定量设计" class="headerlink" title="定量设计"></a>定量设计</h4><p>$reward = r_episode+r_attack+r_search$</p>
+<h5 id="回合奖励"><a href="#回合奖励" class="headerlink" title="回合奖励"></a>回合奖励</h5><script type="math/tex; mode=display">
+r\_episode=\left\{
+\begin{align}
++100 \\
+-100
+\end{align}
+\right.</script><p>攻击单元奖励函数设计</p>
+<script type="math/tex; mode=display">
+r=r_{1}+r_{2}+r_{3}\\
+\left\{
+\begin{align}
+r_{1}&=r_{1}+10,    \qquad 攻击敌方一次\\
+r_{2}&=r_{2}-10,    \qquad 被攻击一次\\
+r_{3}&=r_{3}-5,    \qquad 被探测一次\\
+r_{4}&=r_{4}-5,\qquad 碰撞边界
+\end{align}
+\right.</script><h5 id="探测单元奖励函数设计"><a href="#探测单元奖励函数设计" class="headerlink" title="探测单元奖励函数设计"></a>探测单元奖励函数设计</h5><script type="math/tex; mode=display">
+r=r_{1}+r_{2}+r_{3}\\
+\left\{
+\begin{align}
+r_{1}&=r_{1}+8,    \qquad 探测敌方一次\\
+r_{2}&=r_{2}-8,    \qquad 被攻击一次\\
+r_{3}&=r_{3}-4,    \qquad 被探测一次\\
+r_{4}&=r_{4}-5,\qquad 碰撞边界
+\end{align}
+\right.</script><h2 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h2><h3 id="平台"><a href="#平台" class="headerlink" title="平台"></a>平台</h3><p>实验软件环境为 Windows10 操作系统; pytorch深度学习框架；硬件环境为Intel(R) Core(TM) i7-9750H CPU；NVIDIA GeForce GTX 1650</p>
+<h3 id="仿真环境"><a href="#仿真环境" class="headerlink" title="仿真环境"></a>仿真环境</h3><p>基础环境：<a href="https://github.com/openai/multiagent-particle-envs">Multi-Agent Particle Environment</a>环境<br>根据对抗场景设计，构建自己的环境。</p>
+<h3 id="算法原理"><a href="#算法原理" class="headerlink" title="算法原理"></a>算法原理</h3><p>算法模型由多个DDPG网络组成，每个网络学习policy π (Actor) 和 action value Q (Critic)；同时具有target network，用于Q-learning的off-policy学习。算法架构图如下：</p>
+<p><img src="/2023/03/13/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AF%B9%E6%8A%97/总览图.png" alt="总览图"></p>
+<p>每个智能体用 Actor-Critic 的方法训练，在 MADDPG 中每个智能体的 Critic 部分都能够获得其他智能体的策略信息。具体来说，考虑一个有$N$个智能体的博弈，每个智能体的策略参数为$\theta = \left \{  \theta_{1},…\theta_{N}  \right \}$ ,记$\pi = \left \{ \pi_{1},……,\pi_{N} \right \} $ 为所有智能体的策略集合，那么我们可以写出在随机性策略情况下每个智能体的累积期望奖励$J\left(\theta_{i}\right)=E_{s \sim \rho^{\pi}, a_{i} \sim \pi_{\theta_{i}}}\left[\sum_{t=0}^{\infty} \gamma^{t} r_{i, t}\right]$ ,针对随机策略，求策略梯度为：</p>
+<script type="math/tex; mode=display">
+J\left(\theta_{i}\right)=E_{s \sim \rho^{\pi}, a_{i} \sim \pi_{\theta_{i}}}\left[\sum_{t=0}^{\infty} \gamma^{t} r_{i, t}\right]\nabla_{\theta_{i}} J\left(\theta_{i}\right)=\mathbb{E}_{s \sim p^{\mu}, a \sim \pi_{i}}\left[\nabla_{\theta_{i}} \log \pi_{i}\left(a_{i} \mid o_{i}\right) Q_{i}^{\pi}\left(\mathbf{x}, a_{1}, \ldots, a_{N}\right)\right]</script><p>其中，$Q_{i}^{\pi}\left(\mathbf{x}, a_{1}, \ldots, a_{N}\right)$就是一个中心化的动作价值函数。为什么说$Q_{i}$是一个中心化的动作价值函数呢？一般来说$x=(o_{1},…,o_{N})$包含了所有智能体的观测，另外$Q_{i}$也需要输入所有智能体在此刻的动作，因此$Q_{i}$工作的前提就是所有智能体要同时给出自己的观测和相应的动作。</p>
+<p>对于确定性策略来说，考虑现在有N个连续的策略$\mu _{\theta _{i}}$，可以得到 DDPG 的梯度公式：</p>
+<script type="math/tex; mode=display">
+\nabla_{\theta_i} J\left(\mu_i\right)=\mathbb{E}_{\mathbf{x} \sim \mathcal{D}}\left[\left.\nabla_{\theta_i} \mu_i\left(o_i\right) \nabla_{a_i} Q_i^\mu\left(\mathbf{x}, a_1, \ldots, a_N\right)\right|_{a_i=\mu_i\left(o_i\right)}\right]</script><p>其中，$D$是我们用来存储数据的经验回放池，它存储的每一个数据为$\left(\mathbf{x}, \mathbf{x}^{\prime}, a_1, \ldots, a_N, r_1, \ldots, r_N\right)$。而在 MADDPG 中，中心化动作价值函数可以按照下面的损失函数来更新：</p>
+<script type="math/tex; mode=display">
+\mathcal{L}\left(\omega_i\right)=\mathbb{E}_{\mathbf{x}, a, r, \mathbf{x}^{\prime}}\left[\left(Q_i^\mu\left(\mathbf{x}, a_1, \ldots, a_N\right)-y\right)^2\right], \quad y=r_i+\left.\gamma Q_i^{\mu^{\prime}}\left(\mathbf{x}^{\prime}, a_1^{\prime}, \ldots, a_N^{\prime}\right)\right|_{a_j^{\prime}=\mu_j^{\prime}\left(o_j\right)}</script><p>流程为：</p>
+<p><img src="/2023/03/13/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%AF%B9%E6%8A%97/伪代码.png" alt="伪代码"></p>
+<h3 id="关键代码实现"><a href="#关键代码实现" class="headerlink" title="关键代码实现"></a>关键代码实现</h3>]]></content>
+      <categories>
+        <category>毕设</category>
+      </categories>
+      <tags>
+        <tag>毕设</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>MADDPG</title>
+    <url>/2023/03/13/MADDPG/</url>
+    <content><![CDATA[<h1 id="MADDPG-算法"><a href="#MADDPG-算法" class="headerlink" title="MADDPG 算法"></a>MADDPG 算法</h1><h2 id="算法介绍"><a href="#算法介绍" class="headerlink" title="算法介绍"></a>算法介绍</h2><h3 id="简介"><a href="#简介" class="headerlink" title="简介"></a>简介</h3><p>多智能体 DDPG（muli-agent DDPG，MADDPG）是将 DDPG 算法扩展到多智能体环境中，从字面意思上来看就是对于每个智能体实现一个 DDPG 的算法。所有智能体共享一个中心化的 Critic 网络，该 Critic 网络在训练的过程中同时对每个智能体的 Actor 网络给出指导，而执行时每个智能体的 Actor 网络则是完全独立做出行动，即去中心化地执行。</p>
+<span id="more"></span>
+<h3 id="原理"><a href="#原理" class="headerlink" title="原理"></a>原理</h3><p>算法模型由多个DDPG网络组成，每个网络学习policy π (Actor) 和 action value Q (Critic)；同时具有target network，用于Q-learning的off-policy学习。算法架构图如下：</p>
+<p><img src="/2023/03/13/MADDPG/总览图.png" alt="总览图"></p>
+<p>每个智能体用 Actor-Critic 的方法训练，在 MADDPG 中每个智能体的 Critic 部分都能够获得其他智能体的策略信息。具体来说，考虑一个有$N$个智能体的博弈，每个智能体的策略参数为$\theta = \left \{  \theta_{1},…\theta_{N}  \right \}$ ,记$\pi = \left \{ \pi_{1},……,\pi_{N} \right \} $ 为所有智能体的策略集合，那么我们可以写出在随机性策略情况下每个智能体的累积期望奖励$J\left(\theta_{i}\right)=E_{s \sim \rho^{\pi}, a_{i} \sim \pi_{\theta_{i}}}\left[\sum_{t=0}^{\infty} \gamma^{t} r_{i, t}\right]$ ,针对随机策略，求策略梯度为：</p>
+<script type="math/tex; mode=display">
+J\left(\theta_{i}\right)=E_{s \sim \rho^{\pi}, a_{i} \sim \pi_{\theta_{i}}}\left[\sum_{t=0}^{\infty} \gamma^{t} r_{i, t}\right]\nabla_{\theta_{i}} J\left(\theta_{i}\right)=\mathbb{E}_{s \sim p^{\mu}, a \sim \pi_{i}}\left[\nabla_{\theta_{i}} \log \pi_{i}\left(a_{i} \mid o_{i}\right) Q_{i}^{\pi}\left(\mathbf{x}, a_{1}, \ldots, a_{N}\right)\right]</script><p>其中，$Q_{i}^{\pi}\left(\mathbf{x}, a_{1}, \ldots, a_{N}\right)$就是一个中心化的动作价值函数。为什么说$Q_{i}$是一个中心化的动作价值函数呢？一般来说$x=(o_{1},…,o_{N})$包含了所有智能体的观测，另外$Q_{i}$也需要输入所有智能体在此刻的动作，因此$Q_{i}$工作的前提就是所有智能体要同时给出自己的观测和相应的动作。</p>
+<p>对于确定性策略来说，考虑现在有N个连续的策略$\mu _{\theta _{i}}$，可以得到 DDPG 的梯度公式：</p>
+<script type="math/tex; mode=display">
+\nabla_{\theta_i} J\left(\mu_i\right)=\mathbb{E}_{\mathbf{x} \sim \mathcal{D}}\left[\left.\nabla_{\theta_i} \mu_i\left(o_i\right) \nabla_{a_i} Q_i^\mu\left(\mathbf{x}, a_1, \ldots, a_N\right)\right|_{a_i=\mu_i\left(o_i\right)}\right]</script><p>其中，$D$是我们用来存储数据的经验回放池，它存储的每一个数据为$\left(\mathbf{x}, \mathbf{x}^{\prime}, a_1, \ldots, a_N, r_1, \ldots, r_N\right)$。而在 MADDPG 中，中心化动作价值函数可以按照下面的损失函数来更新：</p>
+<script type="math/tex; mode=display">
+\mathcal{L}\left(\omega_i\right)=\mathbb{E}_{\mathbf{x}, a, r, \mathbf{x}^{\prime}}\left[\left(Q_i^\mu\left(\mathbf{x}, a_1, \ldots, a_N\right)-y\right)^2\right], \quad y=r_i+\left.\gamma Q_i^{\mu^{\prime}}\left(\mathbf{x}^{\prime}, a_1^{\prime}, \ldots, a_N^{\prime}\right)\right|_{a_j^{\prime}=\mu_j^{\prime}\left(o_j\right)}</script><p>流程为：</p>
+<p><img src="/2023/03/13/MADDPG/伪代码.png" alt="伪代码"></p>
+<h3 id="算法实现"><a href="#算法实现" class="headerlink" title="算法实现"></a>算法实现</h3><h5 id="导入一些需要用到的包。"><a href="#导入一些需要用到的包。" class="headerlink" title="导入一些需要用到的包。"></a>导入一些需要用到的包。</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">import</span> torch</span><br><span class="line"><span class="keyword">import</span> torch.nn.functional <span class="keyword">as</span> F</span><br><span class="line"><span class="keyword">import</span> numpy <span class="keyword">as</span> np</span><br><span class="line"><span class="keyword">import</span> matplotlib.pyplot <span class="keyword">as</span> plt</span><br><span class="line"><span class="keyword">import</span> random</span><br><span class="line"><span class="keyword">import</span> rl_utils</span><br></pre></td></tr></table></figure>
+<h5 id="创建环境"><a href="#创建环境" class="headerlink" title="创建环境"></a>创建环境</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">make_env</span>(<span class="params">scenario_name</span>):</span><br><span class="line">    <span class="comment"># 从环境文件脚本中创建环境</span></span><br><span class="line">    scenario = scenarios.load(scenario_name + <span class="string">&quot;.py&quot;</span>).Scenario()</span><br><span class="line">    world = scenario.make_world()</span><br><span class="line">    env = MultiAgentEnv(world, scenario.reset_world, scenario.reward,</span><br><span class="line">                        scenario.observation)</span><br><span class="line">    <span class="keyword">return</span> env</span><br></pre></td></tr></table></figure>
+<h5 id="Gumbel-Softmax-采样"><a href="#Gumbel-Softmax-采样" class="headerlink" title="Gumbel-Softmax 采样"></a>Gumbel-Softmax 采样</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">onehot_from_logits</span>(<span class="params">logits, eps=<span class="number">0.01</span></span>):</span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27; 生成最优动作的独热（one-hot）形式 &#x27;&#x27;&#x27;</span></span><br><span class="line">    argmax_acs = (logits == logits.<span class="built_in">max</span>(<span class="number">1</span>, keepdim=<span class="literal">True</span>)[<span class="number">0</span>]).<span class="built_in">float</span>()</span><br><span class="line">    <span class="comment"># 生成随机动作,转换成独热形式</span></span><br><span class="line">    rand_acs = torch.autograd.Variable(torch.eye(logits.shape[<span class="number">1</span>])[[</span><br><span class="line">        np.random.choice(<span class="built_in">range</span>(logits.shape[<span class="number">1</span>]), size=logits.shape[<span class="number">0</span>])</span><br><span class="line">    ]],</span><br><span class="line">                                       requires_grad=<span class="literal">False</span>).to(logits.device)</span><br><span class="line">    <span class="comment"># 通过epsilon-贪婪算法来选择用哪个动作</span></span><br><span class="line">    <span class="keyword">return</span> torch.stack([</span><br><span class="line">        argmax_acs[i] <span class="keyword">if</span> r &gt; eps <span class="keyword">else</span> rand_acs[i]</span><br><span class="line">        <span class="keyword">for</span> i, r <span class="keyword">in</span> <span class="built_in">enumerate</span>(torch.rand(logits.shape[<span class="number">0</span>]))</span><br><span class="line">    ])</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">sample_gumbel</span>(<span class="params">shape, eps=<span class="number">1e-20</span>, tens_type=torch.FloatTensor</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;从Gumbel(0,1)分布中采样&quot;&quot;&quot;</span></span><br><span class="line">    U = torch.autograd.Variable(tens_type(*shape).uniform_(),</span><br><span class="line">                                requires_grad=<span class="literal">False</span>)</span><br><span class="line">    <span class="keyword">return</span> -torch.log(-torch.log(U + eps) + eps)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">gumbel_softmax_sample</span>(<span class="params">logits, temperature</span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot; 从Gumbel-Softmax分布中采样&quot;&quot;&quot;</span></span><br><span class="line">    y = logits + sample_gumbel(logits.shape, tens_type=<span class="built_in">type</span>(logits.data)).to(</span><br><span class="line">        logits.device)</span><br><span class="line">    <span class="keyword">return</span> F.softmax(y / temperature, dim=<span class="number">1</span>)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">gumbel_softmax</span>(<span class="params">logits, temperature=<span class="number">1.0</span></span>):</span><br><span class="line">    <span class="string">&quot;&quot;&quot;从Gumbel-Softmax分布中采样,并进行离散化&quot;&quot;&quot;</span></span><br><span class="line">    y = gumbel_softmax_sample(logits, temperature)</span><br><span class="line">    y_hard = onehot_from_logits(y)</span><br><span class="line">    y = (y_hard.to(logits.device) - y).detach() + y</span><br><span class="line">    <span class="comment"># 返回一个y_hard的独热量,但是它的梯度是y,我们既能够得到一个与环境交互的离散动作,又可以</span></span><br><span class="line">    <span class="comment"># 正确地反传梯度</span></span><br><span class="line">    <span class="keyword">return</span> y</span><br></pre></td></tr></table></figure>
+<h5 id="单智能体-DDPG"><a href="#单智能体-DDPG" class="headerlink" title="单智能体 DDPG"></a>单智能体 DDPG</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">TwoLayerFC</span>(torch.nn.Module):</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, num_in, num_out, hidden_dim</span>):</span><br><span class="line">        <span class="built_in">super</span>().__init__()</span><br><span class="line">        self.fc1 = torch.nn.Linear(num_in, hidden_dim)</span><br><span class="line">        self.fc2 = torch.nn.Linear(hidden_dim, hidden_dim)</span><br><span class="line">        self.fc3 = torch.nn.Linear(hidden_dim, num_out)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">forward</span>(<span class="params">self, x</span>):</span><br><span class="line">        x = F.relu(self.fc1(x))</span><br><span class="line">        x = F.relu(self.fc2(x))</span><br><span class="line">        <span class="keyword">return</span> self.fc3(x)</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="keyword">class</span> <span class="title class_">DDPG</span>:</span><br><span class="line">    <span class="string">&#x27;&#x27;&#x27; DDPG算法 &#x27;&#x27;&#x27;</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, state_dim, action_dim, critic_input_dim, hidden_dim,</span></span><br><span class="line"><span class="params">                 actor_lr, critic_lr, device</span>):</span><br><span class="line">        self.actor = TwoLayerFC(state_dim, action_dim, hidden_dim).to(device)</span><br><span class="line">        self.target_actor = TwoLayerFC(state_dim, action_dim,</span><br><span class="line">                                       hidden_dim).to(device)</span><br><span class="line">        self.critic = TwoLayerFC(critic_input_dim, <span class="number">1</span>, hidden_dim).to(device)</span><br><span class="line">        self.target_critic = TwoLayerFC(critic_input_dim, <span class="number">1</span>,</span><br><span class="line">                                        hidden_dim).to(device)</span><br><span class="line">        self.target_critic.load_state_dict(self.critic.state_dict())</span><br><span class="line">        self.target_actor.load_state_dict(self.actor.state_dict())</span><br><span class="line">        self.actor_optimizer = torch.optim.Adam(self.actor.parameters(),</span><br><span class="line">                                                lr=actor_lr)</span><br><span class="line">        self.critic_optimizer = torch.optim.Adam(self.critic.parameters(),</span><br><span class="line">                                                 lr=critic_lr)</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">take_action</span>(<span class="params">self, state, explore=<span class="literal">False</span></span>):</span><br><span class="line">        action = self.actor(state)</span><br><span class="line">        <span class="keyword">if</span> explore:</span><br><span class="line">            action = gumbel_softmax(action)</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            action = onehot_from_logits(action)</span><br><span class="line">        <span class="keyword">return</span> action.detach().cpu().numpy()[<span class="number">0</span>]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">soft_update</span>(<span class="params">self, net, target_net, tau</span>):</span><br><span class="line">        <span class="keyword">for</span> param_target, param <span class="keyword">in</span> <span class="built_in">zip</span>(target_net.parameters(),</span><br><span class="line">                                       net.parameters()):</span><br><span class="line">            param_target.data.copy_(param_target.data * (<span class="number">1.0</span> - tau) +</span><br><span class="line">                                    param.data * tau)</span><br></pre></td></tr></table></figure>
+<h5 id="MADDPG-类"><a href="#MADDPG-类" class="headerlink" title="MADDPG 类"></a>MADDPG 类</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">class</span> <span class="title class_">MADDPG</span>:</span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">__init__</span>(<span class="params">self, env, device, actor_lr, critic_lr, hidden_dim,</span></span><br><span class="line"><span class="params">                 state_dims, action_dims, critic_input_dim, gamma, tau</span>):</span><br><span class="line">        self.agents = []</span><br><span class="line">        <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(env.agents)):</span><br><span class="line">            self.agents.append(</span><br><span class="line">                DDPG(state_dims[i], action_dims[i], critic_input_dim,</span><br><span class="line">                     hidden_dim, actor_lr, critic_lr, device))</span><br><span class="line">        self.gamma = gamma</span><br><span class="line">        self.tau = tau</span><br><span class="line">        self.critic_criterion = torch.nn.MSELoss()</span><br><span class="line">        self.device = device</span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">policies</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> [agt.actor <span class="keyword">for</span> agt <span class="keyword">in</span> self.agents]</span><br><span class="line"></span><br><span class="line"><span class="meta">    @property</span></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">target_policies</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">return</span> [agt.target_actor <span class="keyword">for</span> agt <span class="keyword">in</span> self.agents]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">take_action</span>(<span class="params">self, states, explore</span>):</span><br><span class="line">        states = [</span><br><span class="line">            torch.tensor([states[i]], dtype=torch.<span class="built_in">float</span>, device=self.device)</span><br><span class="line">            <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(env.agents))</span><br><span class="line">        ]</span><br><span class="line">        <span class="keyword">return</span> [</span><br><span class="line">            agent.take_action(state, explore)</span><br><span class="line">            <span class="keyword">for</span> agent, state <span class="keyword">in</span> <span class="built_in">zip</span>(self.agents, states)</span><br><span class="line">        ]</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">update</span>(<span class="params">self, sample, i_agent</span>):</span><br><span class="line">        obs, act, rew, next_obs, done = sample</span><br><span class="line">        cur_agent = self.agents[i_agent]</span><br><span class="line"></span><br><span class="line">        cur_agent.critic_optimizer.zero_grad()</span><br><span class="line">        all_target_act = [</span><br><span class="line">            onehot_from_logits(pi(_next_obs))</span><br><span class="line">            <span class="keyword">for</span> pi, _next_obs <span class="keyword">in</span> <span class="built_in">zip</span>(self.target_policies, next_obs)</span><br><span class="line">        ]</span><br><span class="line">        target_critic_input = torch.cat((*next_obs, *all_target_act), dim=<span class="number">1</span>)</span><br><span class="line">        target_critic_value = rew[i_agent].view(</span><br><span class="line">            -<span class="number">1</span>, <span class="number">1</span>) + self.gamma * cur_agent.target_critic(</span><br><span class="line">                target_critic_input) * (<span class="number">1</span> - done[i_agent].view(-<span class="number">1</span>, <span class="number">1</span>))</span><br><span class="line">        critic_input = torch.cat((*obs, *act), dim=<span class="number">1</span>)</span><br><span class="line">        critic_value = cur_agent.critic(critic_input)</span><br><span class="line">        critic_loss = self.critic_criterion(critic_value,</span><br><span class="line">                                            target_critic_value.detach())</span><br><span class="line">        critic_loss.backward()</span><br><span class="line">        cur_agent.critic_optimizer.step()</span><br><span class="line"></span><br><span class="line">        cur_agent.actor_optimizer.zero_grad()</span><br><span class="line">        cur_actor_out = cur_agent.actor(obs[i_agent])</span><br><span class="line">        cur_act_vf_in = gumbel_softmax(cur_actor_out)</span><br><span class="line">        all_actor_acs = []</span><br><span class="line">        <span class="keyword">for</span> i, (pi, _obs) <span class="keyword">in</span> <span class="built_in">enumerate</span>(<span class="built_in">zip</span>(self.policies, obs)):</span><br><span class="line">            <span class="keyword">if</span> i == i_agent:</span><br><span class="line">                all_actor_acs.append(cur_act_vf_in)</span><br><span class="line">            <span class="keyword">else</span>:</span><br><span class="line">                all_actor_acs.append(onehot_from_logits(pi(_obs)))</span><br><span class="line">        vf_in = torch.cat((*obs, *all_actor_acs), dim=<span class="number">1</span>)</span><br><span class="line">        actor_loss = -cur_agent.critic(vf_in).mean()</span><br><span class="line">        actor_loss += (cur_actor_out**<span class="number">2</span>).mean() * <span class="number">1e-3</span></span><br><span class="line">        actor_loss.backward()</span><br><span class="line">        cur_agent.actor_optimizer.step()</span><br><span class="line"></span><br><span class="line">    <span class="keyword">def</span> <span class="title function_">update_all_targets</span>(<span class="params">self</span>):</span><br><span class="line">        <span class="keyword">for</span> agt <span class="keyword">in</span> self.agents:</span><br><span class="line">            agt.soft_update(agt.actor, agt.target_actor, self.tau)</span><br><span class="line">            agt.soft_update(agt.critic, agt.target_critic, self.tau)</span><br></pre></td></tr></table></figure>
+<h5 id="参数"><a href="#参数" class="headerlink" title="参数"></a>参数</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">num_episodes = <span class="number">5000</span></span><br><span class="line">episode_length = <span class="number">25</span>  <span class="comment"># 每条序列的最大长度</span></span><br><span class="line">buffer_size = <span class="number">100000</span></span><br><span class="line">hidden_dim = <span class="number">64</span></span><br><span class="line">actor_lr = <span class="number">1e-2</span></span><br><span class="line">critic_lr = <span class="number">1e-2</span></span><br><span class="line">gamma = <span class="number">0.95</span></span><br><span class="line">tau = <span class="number">1e-2</span></span><br><span class="line">batch_size = <span class="number">1024</span></span><br><span class="line">device = torch.device(<span class="string">&quot;cuda&quot;</span> <span class="keyword">if</span> torch.cuda.is_available() <span class="keyword">else</span> <span class="string">&quot;cpu&quot;</span>)</span><br><span class="line">update_interval = <span class="number">100</span></span><br><span class="line">minimal_size = <span class="number">4000</span></span><br><span class="line"></span><br><span class="line">env_id = <span class="string">&quot;simple_adversary&quot;</span></span><br><span class="line">env = make_env(env_id)</span><br><span class="line">replay_buffer = rl_utils.ReplayBuffer(buffer_size)</span><br><span class="line"></span><br><span class="line">state_dims = []</span><br><span class="line">action_dims = []</span><br><span class="line"><span class="keyword">for</span> action_space <span class="keyword">in</span> env.action_space:</span><br><span class="line">    action_dims.append(action_space.n)</span><br><span class="line"><span class="keyword">for</span> state_space <span class="keyword">in</span> env.observation_space:</span><br><span class="line">    state_dims.append(state_space.shape[<span class="number">0</span>])</span><br><span class="line">critic_input_dim = <span class="built_in">sum</span>(state_dims) + <span class="built_in">sum</span>(action_dims)</span><br><span class="line"></span><br><span class="line">maddpg = MADDPG(env, device, actor_lr, critic_lr, hidden_dim, state_dims,</span><br><span class="line">                action_dims, critic_input_dim, gamma, tau)</span><br></pre></td></tr></table></figure>
+<h5 id="训练"><a href="#训练" class="headerlink" title="训练"></a>训练</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line"><span class="keyword">def</span> <span class="title function_">evaluate</span>(<span class="params">env_id, maddpg, n_episode=<span class="number">10</span>, episode_length=<span class="number">25</span></span>):</span><br><span class="line">    <span class="comment"># 对学习的策略进行评估,此时不会进行探索</span></span><br><span class="line">    env = make_env(env_id)</span><br><span class="line">    returns = np.zeros(<span class="built_in">len</span>(env.agents))</span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(n_episode):</span><br><span class="line">        obs = env.reset()</span><br><span class="line">        <span class="keyword">for</span> t_i <span class="keyword">in</span> <span class="built_in">range</span>(episode_length):</span><br><span class="line">            actions = maddpg.take_action(obs, explore=<span class="literal">False</span>)</span><br><span class="line">            obs, rew, done, info = env.step(actions)</span><br><span class="line">            rew = np.array(rew)</span><br><span class="line">            returns += rew / n_episode</span><br><span class="line">    <span class="keyword">return</span> returns.tolist()</span><br><span class="line"></span><br><span class="line"></span><br><span class="line">return_list = []  <span class="comment"># 记录每一轮的回报（return）</span></span><br><span class="line">total_step = <span class="number">0</span></span><br><span class="line"><span class="keyword">for</span> i_episode <span class="keyword">in</span> <span class="built_in">range</span>(num_episodes):</span><br><span class="line">    state = env.reset()</span><br><span class="line">    <span class="comment"># ep_returns = np.zeros(len(env.agents))</span></span><br><span class="line">    <span class="keyword">for</span> e_i <span class="keyword">in</span> <span class="built_in">range</span>(episode_length):</span><br><span class="line">        actions = maddpg.take_action(state, explore=<span class="literal">True</span>)</span><br><span class="line">        next_state, reward, done, _ = env.step(actions)</span><br><span class="line">        replay_buffer.add(state, actions, reward, next_state, done)</span><br><span class="line">        state = next_state</span><br><span class="line"></span><br><span class="line">        total_step += <span class="number">1</span></span><br><span class="line">        <span class="keyword">if</span> replay_buffer.size(</span><br><span class="line">        ) &gt;= minimal_size <span class="keyword">and</span> total_step % update_interval == <span class="number">0</span>:</span><br><span class="line">            sample = replay_buffer.sample(batch_size)</span><br><span class="line"></span><br><span class="line">            <span class="keyword">def</span> <span class="title function_">stack_array</span>(<span class="params">x</span>):</span><br><span class="line">                rearranged = [[sub_x[i] <span class="keyword">for</span> sub_x <span class="keyword">in</span> x]</span><br><span class="line">                              <span class="keyword">for</span> i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(x[<span class="number">0</span>]))]</span><br><span class="line">                <span class="keyword">return</span> [</span><br><span class="line">                    torch.FloatTensor(np.vstack(aa)).to(device)</span><br><span class="line">                    <span class="keyword">for</span> aa <span class="keyword">in</span> rearranged</span><br><span class="line">                ]</span><br><span class="line"></span><br><span class="line">            sample = [stack_array(x) <span class="keyword">for</span> x <span class="keyword">in</span> sample]</span><br><span class="line">            <span class="keyword">for</span> a_i <span class="keyword">in</span> <span class="built_in">range</span>(<span class="built_in">len</span>(env.agents)):</span><br><span class="line">                maddpg.update(sample, a_i)</span><br><span class="line">            maddpg.update_all_targets()</span><br><span class="line">    <span class="keyword">if</span> (i_episode + <span class="number">1</span>) % <span class="number">100</span> == <span class="number">0</span>:</span><br><span class="line">        ep_returns = evaluate(env_id, maddpg, n_episode=<span class="number">100</span>)</span><br><span class="line">        return_list.append(ep_returns)</span><br><span class="line">        <span class="built_in">print</span>(<span class="string">f&quot;Episode: <span class="subst">&#123;i_episode+<span class="number">1</span>&#125;</span>, <span class="subst">&#123;ep_returns&#125;</span>&quot;</span>)</span><br></pre></td></tr></table></figure>
+<h5 id="效果"><a href="#效果" class="headerlink" title="效果"></a>效果</h5><figure class="highlight python"><table><tr><td class="code"><pre><span class="line">return_array = np.array(return_list)</span><br><span class="line"><span class="keyword">for</span> i, agent_name <span class="keyword">in</span> <span class="built_in">enumerate</span>([<span class="string">&quot;adversary_0&quot;</span>, <span class="string">&quot;agent_0&quot;</span>, <span class="string">&quot;agent_1&quot;</span>]):</span><br><span class="line">    plt.figure()</span><br><span class="line">    plt.plot(</span><br><span class="line">        np.arange(return_array.shape[<span class="number">0</span>]) * <span class="number">100</span>,</span><br><span class="line">        rl_utils.moving_average(return_array[:, i], <span class="number">9</span>))</span><br><span class="line">    plt.xlabel(<span class="string">&quot;Episodes&quot;</span>)</span><br><span class="line">    plt.ylabel(<span class="string">&quot;Returns&quot;</span>)</span><br><span class="line">    plt.title(<span class="string">f&quot;<span class="subst">&#123;agent_name&#125;</span> by MADDPG&quot;</span>)</span><br></pre></td></tr></table></figure>
+]]></content>
+      <categories>
+        <category>MARL</category>
+      </categories>
+      <tags>
+        <tag>多智能体强化学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>探索与利用</title>
+    <url>/2023/03/13/%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%88%A9%E7%94%A8/</url>
+    <content><![CDATA[<h1 id="探索与利用"><a href="#探索与利用" class="headerlink" title="探索与利用"></a>探索与利用</h1><h3 id="序列决策任务中的一个基本问题"><a href="#序列决策任务中的一个基本问题" class="headerlink" title="序列决策任务中的一个基本问题"></a>序列决策任务中的一个基本问题</h3><ul>
+<li>Exploitation: 执行能够获得已知最优收益的决策</li>
+<li>Exploration: 尝试更多可能的决策，但不一定是最优收益</li>
+</ul>
+<span id="more"></span>
+<h3 id="策略探索的一些原则"><a href="#策略探索的一些原则" class="headerlink" title="策略探索的一些原则"></a>策略探索的一些原则</h3><ul>
+<li>朴素方法（Naive Exploration)</li>
+</ul>
+<ul>
+<li>添加策略噪声 e-greddy</li>
+</ul>
+<ul>
+<li>积极初始化（Optimistic initialization)</li>
+</ul>
+<ul>
+<li><p>基于不确定性的度量(Uncertainty Measurement)</p>
+<ul>
+<li>​    不确定性越大，越有探索价值</li>
+</ul>
+</li>
+</ul>
+<pre><code>- ​    上置信界
+</code></pre><p>​    <img src="/2023/03/13/%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%88%A9%E7%94%A8/上置信.png" alt="上置信"></p>
+<ul>
+<li>概率匹配(Probability Matching)</li>
+</ul>
+<h3 id="多动臂老虎机"><a href="#多动臂老虎机" class="headerlink" title="多动臂老虎机"></a>多动臂老虎机</h3><h4 id="几个点"><a href="#几个点" class="headerlink" title="几个点:"></a>几个点:</h4><p>期望收益采用增量式更新，时间复杂度和空间复杂度都减小。</p>
+<p>懊悔值：$ R(a^i)=Q^\star-Q(a^i) $</p>
+<p>总懊悔值  ：$\sum_{t=1}^{T}R(a_{t})$</p>
+<p>最小化懊悔值 等价于 最大化期望收益</p>
+<p>$\sigma_{R}$有下界</p>
+<h4 id="贪心策略和-varepsilon-greddy-贪心算法"><a href="#贪心策略和-varepsilon-greddy-贪心算法" class="headerlink" title="贪心策略和$ \varepsilon -greddy$贪心算法"></a>贪心策略和$ \varepsilon -greddy$贪心算法</h4><p><img src="/2023/03/13/%E6%8E%A2%E7%B4%A2%E4%B8%8E%E5%88%A9%E7%94%A8/探索策略.png" alt="探索策略"></p>
+<p>​    </p>
+<p>衰减贪心策略 $\varepsilon$衰减</p>
+<p>参考资料：<a href="https://hrl.boyuai.com/chapter/1">https://hrl.boyuai.com/chapter/1</a></p>
+]]></content>
+      <categories>
+        <category>RL</category>
+      </categories>
+      <tags>
+        <tag>强化学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>强化学习概念</title>
+    <url>/2023/03/12/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<h2 id="强化学习基本概念"><a href="#强化学习基本概念" class="headerlink" title="强化学习基本概念"></a>强化学习基本概念</h2><h3 id="机器学习分类"><a href="#机器学习分类" class="headerlink" title="机器学习分类"></a>机器学习分类</h3><h4 id="预测"><a href="#预测" class="headerlink" title="预测"></a>预测</h4><ul>
+<li><p>有监督</p>
+</li>
+<li><p>无监督</p>
+</li>
+</ul>
+<h4 id="决策"><a href="#决策" class="headerlink" title="决策"></a>决策</h4><ul>
+<li>强化学习</li>
+</ul>
+<span id="more"></span>
+<h3 id="定义"><a href="#定义" class="headerlink" title="定义"></a>定义</h3><p>通过从交互中学习来实现目标的计算方法。</p>
+<p><strong>三个方面：</strong></p>
+<ul>
+<li>感知：在某种程度上感知环境的状态 • </li>
+<li>行动：可以采取行动来影响状态或者达到目标 </li>
+<li>目标：随着时间推移最大化累积奖励</li>
+</ul>
+<h3 id="交互过程"><a href="#交互过程" class="headerlink" title="交互过程"></a>交互过程</h3><p><img src="/2023/03/12/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0%E6%A6%82%E5%BF%B5/交互过程.png" alt="交互过程"></p>
+<h3 id="要素"><a href="#要素" class="headerlink" title="要素"></a>要素</h3><ol>
+<li><p>智能体 agent</p>
+<p>能够take一个action，deliver到环境env中，获得reward/</p>
+</li>
+<li><p>历史（History）是观察、行动和奖励的序列。</p>
+<p>𝐻𝑡 = 𝑂1, 𝑅1, 𝐴1,𝑂2, 𝑅2, 𝐴2, … , 𝑂𝑡−1, 𝑅𝑡−1, 𝐴𝑡−1,𝑂𝑡 , 𝑅</p>
+</li>
+<li><p>状态（state）是一种用于确定接下来会发生的事情（行动、观察、 奖励）的信息</p>
+</li>
+<li><p>状态是关于历史的函数 𝑆𝑡 = 𝑓(𝐻𝑡)</p>
+</li>
+<li><p>策略（Policy）是学习智能体在特定时间的行为方式</p>
+<ul>
+<li><p>是从状态到行动的映射 </p>
+</li>
+<li><p>确定性策略（Deterministic Policy）  𝑎 = 𝜋(𝑠) （是一个函数）</p>
+</li>
+<li><p>随机策略（Stochastic Policy）𝜋（ 𝑎| 𝑠） = 𝑃 （𝐴𝑡 = 𝑎 |𝑆𝑡 = 𝑠)（是一个分布）</p>
+</li>
+</ul>
+</li>
+<li><p>奖励（Reward）</p>
+<ul>
+<li><p>一个定义强化学习目标的标量 </p>
+</li>
+<li><p>能立即感知到什么是“好”的</p>
+</li>
+</ul>
+</li>
+<li><p>价值函数（Value Function）</p>
+<ul>
+<li><p>状态价值是一个标量，用于定义对于长期来说什么是 “好”的</p>
+</li>
+<li><p>价值函数是对于未来累积奖励的预测</p>
+</li>
+<li><p>用于评估在给定的策略下，状态的好坏</p>
+</li>
+<li><script type="math/tex; mode=display">
+\begin{aligned}
+Q_{\pi}(s, a) & =\mathbb{E}_{\pi}\left[R_{t+1}+\gamma R_{t+2}+\gamma^{2} R_{t+3}+\cdots \mid S_{t}=s, A_{t}=a\right] \\
+& =\mathbb{E}_{\pi}\left[R_{t+1}+\gamma Q_{\pi}\left(s^{\prime}, a^{\prime}\right) \mid S_{t}=s, A_{t}=a\right]
+\end{aligned}</script></li>
+</ul>
+</li>
+</ol>
+<ol>
+<li><p>环境的模型（Model）用于模 拟环境的行为</p>
+<ul>
+<li>预测下一个状态<script type="math/tex; mode=display">
+\begin{aligned}
+Q_{\pi}(s, a) & =\mathbb{E}_{\pi}\left[R_{t+1}+\gamma R_{t+2}+\gamma^{2} R_{t+3}+\cdots \mid S_{t}=s, A_{t}=a\right] \\
+& =\mathbb{E}_{\pi}\left[R_{t+1}+\gamma Q_{\pi}\left(s^{\prime}, a^{\prime}\right) \mid S_{t}=s, A_{t}=a\right]
+\end{aligned}\mathcal{P}_{s S^{\prime}}^{a}=\mathbb{P}\left[S_{t+1}=s^{\prime} \mid S_{t}=s, A_{t}=a\right]</script></li>
+</ul>
+</li>
+</ol>
+<ul>
+<li>预测下一个（立即）奖励</li>
+</ul>
+<h3 id="强化学习分类"><a href="#强化学习分类" class="headerlink" title="强化学习分类"></a>强化学习分类</h3><p>基于模型的强化学习</p>
+<p>模型无关的强化学习</p>
+<ol>
+<li><p>基于价值：知道什么是好的什么是坏的</p>
+<ul>
+<li><p>没有策略（隐含）    </p>
+</li>
+<li><p>价值函数</p>
+<script type="math/tex; mode=display">
+\nabla_{\theta_{i}} L_{i}\left(\theta_{i}\right)=\mathbb{E}_{s, a \sim \rho(\cdot) ; s^{\prime} \sim \mathcal{E}}\left[\left(r+\gamma \max _{a^{\prime}} Q\left(s^{\prime}, a^{\prime} ; \theta_{i-1}\right)-Q\left(s, a ; \theta_{i}\right)\right) \nabla_{\theta_{i}} Q\left(s, a ; \theta_{i}\right)\right]</script></li>
+</ul>
+</li>
+</ol>
+<ol>
+<li><p>基于策略：知道怎么行动</p>
+<ul>
+<li><p>策略</p>
+</li>
+<li><p>没有价值函数</p>
+</li>
+</ul>
+</li>
+<li><p>Actor-Critic：学生听老师的</p>
+<ul>
+<li><p>策略</p>
+</li>
+<li><p>价值函数</p>
+</li>
+</ul>
+</li>
+</ol>
+<p>​                </p>
+]]></content>
+      <categories>
+        <category>RL</category>
+      </categories>
+      <tags>
+        <tag>强化学习</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>效用理论</title>
+    <url>/2023/03/10/%E6%95%88%E7%94%A8%E7%90%86%E8%AE%BA/</url>
+    <content><![CDATA[<h2 id="效用理论"><a href="#效用理论" class="headerlink" title="效用理论"></a>效用理论</h2><h3 id="理解效用的概念"><a href="#理解效用的概念" class="headerlink" title="理解效用的概念"></a>理解效用的概念</h3><p>效用就是偏好的量化，是数(实值函数)，反映结果值对决策者价值和作用大小的量值 称为效用。</p>
+<span id="more"></span>
+<h3 id="掌握效用，效用函数的定义"><a href="#掌握效用，效用函数的定义" class="headerlink" title="掌握效用，效用函数的定义"></a>掌握效用，效用函数的定义</h3><p>在集合 T 上的实值函数 u，若它和 T 上的优先关系“≽ ”一致，即：若 T , T 1∈ T， T2 ≽T 当且仅当 u(T1 ) ≥ u(T2),则称 u 为效用函数。</p>
+<p>（文字表述）:设决策问题的各可行方案有多种可能的结果值 o，依据决策者的主 观愿望和价值倾向，每个结果值对决策者有不同的价值和作用。反映结果值 o 对决策者价值 和作用大小的量值称为效用，记作：u=u(o)</p>
+<h3 id="效用确定的方法"><a href="#效用确定的方法" class="headerlink" title="效用确定的方法"></a>效用确定的方法</h3><h3 id="效用有界性和存在性证明"><a href="#效用有界性和存在性证明" class="headerlink" title="效用有界性和存在性证明"></a>效用有界性和存在性证明</h3><h3 id="效用函数的构造方法"><a href="#效用函数的构造方法" class="headerlink" title="效用函数的构造方法"></a>效用函数的构造方法</h3><h3 id="熟悉基数效用和序数效用"><a href="#熟悉基数效用和序数效用" class="headerlink" title="熟悉基数效用和序数效用"></a>熟悉基数效用和序数效用</h3><h3 id="风险态度与效用关系"><a href="#风险态度与效用关系" class="headerlink" title="风险态度与效用关系"></a>风险态度与效用关系</h3><h3 id="货币的效用"><a href="#货币的效用" class="headerlink" title="货币的效用"></a>货币的效用</h3><h3 id="总效用与边际效用"><a href="#总效用与边际效用" class="headerlink" title="总效用与边际效用"></a>总效用与边际效用</h3>]]></content>
+      <categories>
+        <category>F0601</category>
+      </categories>
+      <tags>
+        <tag>F0601</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>决策的基本概念</title>
+    <url>/2023/03/10/%E5%86%B3%E7%AD%96%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/</url>
+    <content><![CDATA[<h2 id="决策的基本概念"><a href="#决策的基本概念" class="headerlink" title="决策的基本概念"></a>决策的基本概念</h2><span id="more"></span>
+<h3 id="决策的概念"><a href="#决策的概念" class="headerlink" title="决策的概念"></a><strong>决策的概念</strong></h3><p>狭义理解：决策就是做出决定，仅限于人们从不方案中做出最佳选择</p>
+<p>广义理解：把决策看作一个过程；即人们为了实现某一目标，在占有一定信息和经验的基础上，根据主客观条件的可能性，提出各种可行的方案，采用一定的科学方法和手段，进行比较，分析和评价，按照决策准则，从中筛选出最满意方案，并根据方案实施的反馈情况进行修整控制直至目标实现的整个系统过程。</p>
+<h3 id="基本要素"><a href="#基本要素" class="headerlink" title="基本要素"></a><strong>基本要素</strong></h3><p> 决策者：决策者即决策主体，可以是个体，也可以是群体。</p>
+<p> 决策目标：决策者必须有一个希 望达到的明确的目标，可以是单个目标，也可以是 多个目标。</p>
+<p> 决策方案：存在着供人们选择的不同的决策方案</p>
+<p> 自然状态：决策者无法控制但可以预见的决策环境客观存在的各种状态。</p>
+<p> 决策后果：即各种决策方案在不同自然状态下所出现的结果。</p>
+<p> 决策准则：是评价方案是否达到决策目标的价值标准，也是选择方案的依据。</p>
+<h3 id="基本步骤"><a href="#基本步骤" class="headerlink" title="基本步骤"></a><strong>基本步骤</strong></h3><p> 发现和分析问题</p>
+<p> 确定决策目标</p>
+<p> 拟定各种可行方案<br> 分析比较各种备择方案，从中选择最优方案</p>
+<p> 决策的执行，反馈与调整</p>
+<p><img src="/2023/03/10/%E5%86%B3%E7%AD%96%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5/决策步骤.png" alt="决策步骤"></p>
+<h3 id="特点"><a href="#特点" class="headerlink" title="特点"></a>特点</h3><p>？？？</p>
+<h3 id="决策的分类"><a href="#决策的分类" class="headerlink" title="决策的分类"></a><em>决策的分类</em></h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>分类角度</th>
+<th>分类</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>决策主体</td>
+<td>个人\</td>
+<td>组织</td>
+</tr>
+<tr>
+<td>决策影响范围</td>
+<td>战略\</td>
+<td>管理\</td>
+<td>业务</td>
+</tr>
+<tr>
+<td>决策程序的规范性</td>
+<td>程序化\</td>
+<td>非程序化</td>
+</tr>
+<tr>
+<td>决策的确定性</td>
+<td>确定性\</td>
+<td>不确定型</td>
+</tr>
+<tr>
+<td>决策过程的连续性</td>
+<td>单项\</td>
+<td>序贯</td>
+</tr>
+<tr>
+<td>决策目标个数</td>
+<td>单目标\</td>
+<td>多目标</td>
+</tr>
+<tr>
+<td>定性定量特性</td>
+<td>定量\</td>
+<td>定性</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="实际决策过程的难点"><a href="#实际决策过程的难点" class="headerlink" title="实际决策过程的难点"></a>实际决策过程的难点</h3><p>​    无法确保决策措施得以顺利实施的“现实前提条件”与决策者心中墨认的 “理想条件”是否一致,是决策人最需要重视的问题,全面正确的分析“现实前提条件”与“理 想条件”的差异是决策的主要难点.无论是大 方向上的决策措施,还是决策中的细分计划, 要想顺利实施必然有其各自的前提条件,我们称这些前提条件为“理想条件”,当现 实 条件 与 这 个前 提 不 相适 应 时,就要想办法打通这些环节,尽可能让现条件与决策理想条件相符, 这样决策措施才能顺利实施,最终达到决策者的目的.如果事先对“现实前提条件” 与“理想条件”的差异分析不够往往就导致问题的解决不彻底,也就直接影响到决策措施是否能够最终顺利实施.所以正确分析这里的“差异”是相当重要的.</p>
+<h3 id="主要的决策陷阱"><a href="#主要的决策陷阱" class="headerlink" title="主要的决策陷阱"></a>主要的决策陷阱</h3><p>“沉锚”陷阱：</p>
+<p>“有利证据”陷阱</p>
+<p>“框架”陷阱：</p>
+<p>“霍布森选择”的陷阱</p>
+<p>“布里丹选择”的陷阱</p>
+<p>“群体思维”的陷阱</p>
+]]></content>
+      <categories>
+        <category>F0601</category>
+      </categories>
+      <tags>
+        <tag>F0601</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>hexo博客</title>
+    <url>/2023/03/09/hexo%E5%8D%9A%E5%AE%A2/</url>
+    <content><![CDATA[<h1 id="在gitee搭建hexo"><a href="#在gitee搭建hexo" class="headerlink" title="在gitee搭建hexo"></a>在gitee搭建hexo</h1><h4 id="安装Node-js环境"><a href="#安装Node-js环境" class="headerlink" title="安装Node.js环境"></a>安装Node.js环境</h4><p><a href="http://nodejs.cn/download/">http://nodejs.cn/download/</a> </p>
+<span id="more"></span>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 确认node.js安装成功：运行下面两个命令打印版本号即可</span></span><br><span class="line">node -v</span><br><span class="line">npm  -v</span><br><span class="line"></span><br><span class="line"><span class="comment"># 安装 Node.js 淘宝镜像加速器 （cnpm）</span></span><br><span class="line">npm install -g cnpm --registry=https://registry.npm.taobao.org</span><br><span class="line"></span><br><span class="line"><span class="comment"># 修改 node 类库默认安装位置</span></span><br><span class="line"><span class="comment"># 默认是在 C:\Users\lingStudy\AppData\Roaming\npm</span></span><br><span class="line"></span><br><span class="line">npm config <span class="built_in">set</span> prefix <span class="string">&quot;D:\nodejs安装路径\node_global&quot;</span></span><br><span class="line">npm config <span class="built_in">set</span> cache <span class="string">&quot;D:\nodejs安装路径\node_cache&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#尤其要注意环境变量的设置</span></span><br><span class="line"><span class="comment"># 查看修改是否成功</span></span><br><span class="line">npm root -g</span><br><span class="line"><span class="comment"># 然后把D:\install\node\node_global配置到环境变量的 PATH 下即可</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="安装版本控制工具-Git"><a href="#安装版本控制工具-Git" class="headerlink" title="安装版本控制工具 Git"></a>安装版本控制工具 Git</h4><p>用来将本地项目托管到码云，所以还需要自己注册一个码云的账号。</p>
+<p><a href="https://git-scm.com/download">https://git-scm.com/download</a></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># Git一些重要配置</span></span><br><span class="line">git config --global user.name <span class="string">&quot;lxxxxdy&quot;</span>  <span class="comment">#码云用户名</span></span><br><span class="line">git config --global user.email <span class="string">&quot;xxx83@qq.com&quot;</span>   <span class="comment">#邮箱</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="comment"># 生成SSH公钥并添加到码云，实现免密码登录</span></span><br><span class="line"><span class="comment"># 1、生成公钥</span></span><br><span class="line">ssh-keygen -t rsa</span><br><span class="line"><span class="comment"># 2、进入 C:\Users\主机名\.ssh 目录，把 id_rsa.pub 里面的信息复制到码云的 SSH公钥 中即可</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="Hexo-官网"><a href="#Hexo-官网" class="headerlink" title="Hexo 官网"></a>Hexo 官网</h4><p> <a href="https://hexo.io/zh-cn/">https://hexo.io/zh-cn/</a></p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 初始化一个项目，hexoblog 是项目名</span></span><br><span class="line">hexo init  hexoblog</span><br><span class="line"></span><br><span class="line"><span class="comment"># 1、进入hexoblog项目目录</span></span><br><span class="line"><span class="built_in">cd</span> hexoblog</span><br><span class="line"><span class="comment">#/2、安装 hexoblog 项目的依赖包</span></span><br><span class="line">npm install</span><br><span class="line"><span class="comment">#/3、启动 hexoblog 项目服务</span></span><br><span class="line">hexo server</span><br><span class="line"><span class="comment">#此时，访问 http://localhost:4000/ 即可看到 hexo 默认的页面和一篇“Hello World”默认生成的文章</span></span><br><span class="line"></span><br><span class="line"></span><br><span class="line">.</span><br><span class="line">├── .deploy       <span class="comment"># 需要部署的文件</span></span><br><span class="line">├── node_modules  <span class="comment"># 项目所有的依赖包和插件</span></span><br><span class="line">├── public        <span class="comment"># 生成的静态网页文件</span></span><br><span class="line">├── scaffolds     <span class="comment"># 文章模板</span></span><br><span class="line">├── <span class="built_in">source</span>        <span class="comment"># 博客正文和其他源文件等都应该放在这里</span></span><br><span class="line">|   ├── _drafts   <span class="comment"># 草稿</span></span><br><span class="line">|   └── _posts    <span class="comment"># 文章</span></span><br><span class="line">├── themes        <span class="comment"># 主题</span></span><br><span class="line">├── _config.yml   <span class="comment"># 全局配置文件</span></span><br><span class="line">└── package.json  <span class="comment"># 项目依赖信息</span></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<h4 id="将项目部署到码云"><a href="#将项目部署到码云" class="headerlink" title="将项目部署到码云"></a>将项目部署到码云</h4><p>在码云新建一个仓库,仓库名和路径要与用户名一致。</p>
+<p>在项目根目录下安装git部署插件</p>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 之后就可以使用 hexo deploy（或简写 hexo d）将项目部署到gitee远程仓库</span></span><br><span class="line">npm install hexo-deployer-git --save</span><br></pre></td></tr></table></figure>
+<p>修改项目配置文件：_config.yml，在最下面，修改如下内容</p>
+<figure class="highlight yaml"><table><tr><td class="code"><pre><span class="line"><span class="attr">deploy:</span></span><br><span class="line">  <span class="attr">type:</span> <span class="string">git</span></span><br><span class="line">  <span class="attr">repo:</span> <span class="string">仓库URL地址</span></span><br><span class="line">  <span class="attr">branch:</span> <span class="string">master</span></span><br></pre></td></tr></table></figure>
+<p>使用命令 <strong>hexo d</strong> 将项目部署到 gitee 远程仓库，此时本地文件夹中出现有一个public文件夹。</p>
+<p>开启 Gitee Pages 静态网页托管服务</p>
+<p>next主题优化网上很多。</p>
+]]></content>
+      <categories>
+        <category>hexo</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+        <tag>gitee</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>Hello World</title>
+    <url>/2023/03/09/hello-world/</url>
+    <content><![CDATA[<p>Welcome to <a href="https://hexo.io/">Hexo</a>! This is your very first post. Check <a href="https://hexo.io/docs/">documentation</a> for more info. If you get any problems when using Hexo, you can find the answer in <a href="https://hexo.io/docs/troubleshooting.html">troubleshooting</a> or you can ask me on <a href="https://github.com/hexojs/hexo/issues">GitHub</a>.</p>
+<span id="more"></span>
+<h2 id="Quick-Start"><a href="#Quick-Start" class="headerlink" title="Quick Start"></a>Quick Start</h2><h3 id="Create-a-new-post"><a href="#Create-a-new-post" class="headerlink" title="Create a new post"></a>Create a new post</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo new <span class="string">&quot;My New Post&quot;</span></span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/writing.html">Writing</a></p>
+<h3 id="Run-server"><a href="#Run-server" class="headerlink" title="Run server"></a>Run server</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo server</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/server.html">Server</a></p>
+<h3 id="Generate-static-files"><a href="#Generate-static-files" class="headerlink" title="Generate static files"></a>Generate static files</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo generate</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/generating.html">Generating</a></p>
+<h3 id="Deploy-to-remote-sites"><a href="#Deploy-to-remote-sites" class="headerlink" title="Deploy to remote sites"></a>Deploy to remote sites</h3><figure class="highlight bash"><table><tr><td class="code"><pre><span class="line">$ hexo deploy</span><br></pre></td></tr></table></figure>
+<p>More info: <a href="https://hexo.io/docs/one-command-deployment.html">Deployment</a></p>
+]]></content>
+      <categories>
+        <category>hexo</category>
+      </categories>
+      <tags>
+        <tag>hexo</tag>
+      </tags>
+  </entry>
+</search>
