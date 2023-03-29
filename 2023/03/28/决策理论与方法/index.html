@@ -1,0 +1,896 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+<link rel="dns-prefetch" href="//cdn.bootcss.com" />
+<link rel="dns-prefetch" href="//cdn.mathjax.org" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=2">
+<meta name="theme-color" content="#222">
+<meta name="generator" content="Hexo 5.4.2">
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png">
+  <link rel="mask-icon" href="/images/logo.svg" color="#222">
+
+<link rel="stylesheet" href="/css/main.css">
+
+
+<link rel="stylesheet" href="/lib/font-awesome/css/all.min.css">
+
+<script id="hexo-configurations">
+    var NexT = window.NexT || {};
+    var CONFIG = {"hostname":"suqiqi19.github.io","root":"/","scheme":"Gemini","version":"7.8.0","exturl":false,"sidebar":{"position":"left","display":"post","padding":18,"offset":12,"onmobile":false},"copycode":{"enable":true,"show_result":true,"style":null},"back2top":{"enable":true,"sidebar":false,"scrollpercent":true},"bookmark":{"enable":true,"color":"#222","save":"auto"},"fancybox":false,"mediumzoom":false,"lazyload":false,"pangu":false,"comments":{"style":"tabs","active":null,"storage":true,"lazyload":false,"nav":null},"algolia":{"hits":{"per_page":10},"labels":{"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}},"localsearch":{"enable":true,"trigger":"auto","top_n_per_article":1,"unescape":false,"preload":false},"motion":{"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},"path":"search.xml"};
+  </script>
+
+  <meta name="description" content="决策理论与方法决策基本概念掌握决策的概念狭义理解：决策就是做出决定，仅限于人们从不方案中做出最佳选择 广义理解：把决策看作一个过程；即人们为了实现某一目标，在占有一定信息和经验的基础上，根据主客观条件的可能性，提出各种可行的方案，采用一定的科学方法和手段，进行比较，分析和评价，按照决策准则，从中筛选出最满意方案，并根据方案实施的反馈情况进行修整控制直至目标实现的整个系统过程。">
+<meta property="og:type" content="article">
+<meta property="og:title" content="决策理论与方法">
+<meta property="og:url" content="https://suqiqi19.github.io/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/index.html">
+<meta property="og:site_name" content="慎独">
+<meta property="og:description" content="决策理论与方法决策基本概念掌握决策的概念狭义理解：决策就是做出决定，仅限于人们从不方案中做出最佳选择 广义理解：把决策看作一个过程；即人们为了实现某一目标，在占有一定信息和经验的基础上，根据主客观条件的可能性，提出各种可行的方案，采用一定的科学方法和手段，进行比较，分析和评价，按照决策准则，从中筛选出最满意方案，并根据方案实施的反馈情况进行修整控制直至目标实现的整个系统过程。">
+<meta property="og:locale" content="zh_CN">
+<meta property="og:image" content="https://suqiqi19.github.io/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230328224704180.png">
+<meta property="og:image" content="https://suqiqi19.github.io/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230328224845729.png">
+<meta property="og:image" content="https://suqiqi19.github.io/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230328224919135.png">
+<meta property="og:image" content="https://suqiqi19.github.io/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230328224939519.png">
+<meta property="og:image" content="https://suqiqi19.github.io/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230328224958728.png">
+<meta property="og:image" content="https://suqiqi19.github.io/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230328225016324.png">
+<meta property="og:image" content="https://suqiqi19.github.io/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230329075851633.png">
+<meta property="og:image" content="https://suqiqi19.github.io/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230329080627104.png">
+<meta property="article:published_time" content="2023-03-28T12:14:25.000Z">
+<meta property="article:modified_time" content="2023-03-29T01:07:51.200Z">
+<meta property="article:author" content="宿某人">
+<meta property="article:tag" content="F0601">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:image" content="https://suqiqi19.github.io/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230328224704180.png">
+
+<link rel="canonical" href="https://suqiqi19.github.io/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/">
+
+
+<script id="page-configurations">
+  // https://hexo.io/docs/variables.html
+  CONFIG.page = {
+    sidebar: "",
+    isHome : false,
+    isPost : true,
+    lang   : 'zh-CN'
+  };
+</script>
+
+  <title>决策理论与方法 | 慎独</title>
+  
+
+
+
+
+
+
+  <noscript>
+  <style>
+  .use-motion .brand,
+  .use-motion .menu-item,
+  .sidebar-inner,
+  .use-motion .post-block,
+  .use-motion .pagination,
+  .use-motion .comments,
+  .use-motion .post-header,
+  .use-motion .post-body,
+  .use-motion .collection-header { opacity: initial; }
+
+  .use-motion .site-title,
+  .use-motion .site-subtitle {
+    opacity: initial;
+    top: initial;
+  }
+
+  .use-motion .logo-line-before i { left: initial; }
+  .use-motion .logo-line-after i { right: initial; }
+  </style>
+</noscript>
+
+<!-- hexo injector head_end start -->
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/katex@0.12.0/dist/katex.min.css">
+
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/hexo-math@4.0.0/dist/style.css">
+<!-- hexo injector head_end end --></head>
+
+<body itemscope itemtype="http://schema.org/WebPage">
+  <div class="container use-motion">
+    <div class="headband"></div>
+
+    <header class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-container">
+  <div class="site-nav-toggle">
+    <div class="toggle" aria-label="切换导航栏">
+      <span class="toggle-line toggle-line-first"></span>
+      <span class="toggle-line toggle-line-middle"></span>
+      <span class="toggle-line toggle-line-last"></span>
+    </div>
+  </div>
+
+  <div class="site-meta">
+
+    <a href="/" class="brand" rel="start">
+      <span class="logo-line-before"><i></i></span>
+      <h1 class="site-title">慎独</h1>
+      <span class="logo-line-after"><i></i></span>
+    </a>
+      <p class="site-subtitle" itemprop="description">个人博客</p>
+  </div>
+
+  <div class="site-nav-right">
+    <div class="toggle popup-trigger">
+        <i class="fa fa-search fa-fw fa-lg"></i>
+    </div>
+  </div>
+</div>
+
+
+
+
+<nav class="site-nav">
+  <ul id="menu" class="main-menu menu">
+        <li class="menu-item menu-item-home">
+
+    <a href="/" rel="section"><i class="fa fa-home fa-fw"></i>首页</a>
+
+  </li>
+        <li class="menu-item menu-item-tags">
+
+    <a href="/tags/" rel="section"><i class="fa fa-tags fa-fw"></i>标签</a>
+
+  </li>
+        <li class="menu-item menu-item-categories">
+
+    <a href="/categories/" rel="section"><i class="fa fa-th fa-fw"></i>分类</a>
+
+  </li>
+        <li class="menu-item menu-item-archives">
+
+    <a href="/archives/" rel="section"><i class="fa fa-archive fa-fw"></i>归档</a>
+
+  </li>
+      <li class="menu-item menu-item-search">
+        <a role="button" class="popup-trigger"><i class="fa fa-search fa-fw"></i>搜索
+        </a>
+      </li>
+  </ul>
+</nav>
+
+
+
+  <div class="search-pop-overlay">
+    <div class="popup search-popup">
+        <div class="search-header">
+  <span class="search-icon">
+    <i class="fa fa-search"></i>
+  </span>
+  <div class="search-input-container">
+    <input autocomplete="off" autocapitalize="off"
+           placeholder="搜索..." spellcheck="false"
+           type="search" class="search-input">
+  </div>
+  <span class="popup-btn-close">
+    <i class="fa fa-times-circle"></i>
+  </span>
+</div>
+<div id="search-result">
+  <div id="no-result">
+    <i class="fa fa-spinner fa-pulse fa-5x fa-fw"></i>
+  </div>
+</div>
+
+    </div>
+  </div>
+
+</div>
+    </header>
+
+    
+  <div class="back-to-top">
+    <i class="fa fa-arrow-up"></i>
+    <span>0%</span>
+  </div>
+  <a role="button" class="book-mark-link book-mark-link-fixed"></a>
+
+
+    <main class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          
+
+          <div class="content post posts-expand">
+            
+
+    
+  
+  
+  <article itemscope itemtype="http://schema.org/Article" class="post-block" lang="zh-CN">
+    <link itemprop="mainEntityOfPage" href="https://suqiqi19.github.io/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="image" content="/images/avatar.jpg">
+      <meta itemprop="name" content="宿某人">
+      <meta itemprop="description" content="生命以负熵为生">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="慎独">
+    </span>
+      <header class="post-header">
+        <h1 class="post-title" itemprop="name headline">
+          决策理论与方法
+        </h1>
+
+        <div class="post-meta">
+			
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-calendar"></i>
+              </span>
+              <span class="post-meta-item-text">发表于</span>
+
+              <time title="创建时间：2023-03-28 20:14:25" itemprop="dateCreated datePublished" datetime="2023-03-28T20:14:25+08:00">2023-03-28</time>
+            </span>
+              <span class="post-meta-item">
+                <span class="post-meta-item-icon">
+                  <i class="far fa-calendar-check"></i>
+                </span>
+                <span class="post-meta-item-text">更新于</span>
+                <time title="修改时间：2023-03-29 09:07:51" itemprop="dateModified" datetime="2023-03-29T09:07:51+08:00">2023-03-29</time>
+              </span>
+            <span class="post-meta-item">
+              <span class="post-meta-item-icon">
+                <i class="far fa-folder"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/F0601/" itemprop="url" rel="index"><span itemprop="name">F0601</span></a>
+                </span>
+            </span>
+
+          <br>
+            <span class="post-meta-item" title="本文字数">
+              <span class="post-meta-item-icon">
+                <i class="far fa-file-word"></i>
+              </span>
+                <span class="post-meta-item-text">本文字数：</span>
+              <span>3.7k</span>
+            </span>
+            <span class="post-meta-item" title="阅读时长">
+              <span class="post-meta-item-icon">
+                <i class="far fa-clock"></i>
+              </span>
+                <span class="post-meta-item-text">阅读时长 &asymp;</span>
+              <span>3 分钟</span>
+            </span>
+
+        </div>
+      </header>
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+        <h1 id="决策理论与方法"><a href="#决策理论与方法" class="headerlink" title="决策理论与方法"></a>决策理论与方法</h1><h2 id="决策基本概念"><a href="#决策基本概念" class="headerlink" title="决策基本概念"></a>决策基本概念</h2><h3 id="掌握决策的概念"><a href="#掌握决策的概念" class="headerlink" title="掌握决策的概念"></a>掌握决策的概念</h3><p>狭义理解：决策就是做出决定，<em>仅限于</em>人们从不方案中<em>做出最佳选择</em></p>
+<p>广义理解：把决策看作一个<em>过程</em>；即人们为了实现某一<em>目标</em>，在占有一定<em>信息和经验的基础上</em>，根据主客观条件的可能性，提出各种<em>可行的方案</em>，采用一定的科学方法和手段，进行<em>比较，分析和评价</em>，按照<em>决策准则</em>，从中筛选出<em>最满意方案</em>，并根据<em>方案实施</em>的反馈情况进行<em>修整控制直至目标实现</em>的整个系统过程。</p>
+<span id="more"></span>
+<h3 id="基本要素"><a href="#基本要素" class="headerlink" title="基本要素"></a>基本要素</h3><ul>
+<li>决策者</li>
+<li>决策目标</li>
+<li>决策方案</li>
+<li>自然状态</li>
+<li>决策后果</li>
+<li>决策准则</li>
+</ul>
+<h3 id="基本步骤"><a href="#基本步骤" class="headerlink" title="基本步骤"></a>基本步骤</h3><ol>
+<li><p>发现和分析问题</p>
+</li>
+<li><p>确定决策目标</p>
+</li>
+<li><p>拟定各种可行方案</p>
+</li>
+<li>分析比较各种备择方案，从中选择最优方案</li>
+<li>决策的执行，反馈与调整</li>
+</ol>
+<h3 id="熟悉不同决策问题、方法的特点"><a href="#熟悉不同决策问题、方法的特点" class="headerlink" title="熟悉不同决策问题、方法的特点"></a>熟悉不同决策问题、方法的特点</h3><h3 id="决策的分类"><a href="#决策的分类" class="headerlink" title="决策的分类"></a>决策的分类</h3><div class="table-container">
+<table>
+<thead>
+<tr>
+<th>分类角度</th>
+<th>分类</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>决策主体</td>
+<td>个人\</td>
+<td>组织</td>
+</tr>
+<tr>
+<td>决策影响范围</td>
+<td>战略\</td>
+<td>管理\</td>
+<td>业务</td>
+</tr>
+<tr>
+<td>决策程序的规范性</td>
+<td>程序化\</td>
+<td>非程序化</td>
+</tr>
+<tr>
+<td>决策的确定性</td>
+<td>确定性\</td>
+<td>不确定型</td>
+</tr>
+<tr>
+<td>决策过程的连续性</td>
+<td>单项\</td>
+<td>序贯</td>
+</tr>
+<tr>
+<td>决策目标个数</td>
+<td>单目标\</td>
+<td>多目标</td>
+</tr>
+<tr>
+<td>定性定量特性</td>
+<td>定量\</td>
+<td>定性</td>
+</tr>
+</tbody>
+</table>
+</div>
+<h3 id="了解实际决策过程的难点"><a href="#了解实际决策过程的难点" class="headerlink" title="了解实际决策过程的难点"></a>了解实际决策过程的难点</h3><p>无法确保决策措施得以<em>顺利实施的“现实前提条件”</em>与决策者心中墨认的 <em>“理想条件”</em>是否一致,是决策人最需要重视的问题,全面正确的分析“现实前提条件”与“理 想条件”的<em>差异</em>是决策的主要难点.无论是大 方向上的决策措施,还是决策中的细分计划, 要想顺利实施必然有其各自的前提条件,我们称这些前提条件为“理想条件”,当现 实 条件 与 这 个前 提 不 相适 应 时,就要想办法打通这些环节,尽可能让现条件与决策理想条件相符, 这样决策措施才能顺利实施,最终达到决策者的目的.如果事先对“现实前提条件” 与“理想条件”的差异分析不够往往就导致问题的解决不彻底,也就直接影响到决策措施是否能够最终顺利实施.所以正确分析这里的“差异”是相当重要的.</p>
+<h3 id="主要的决策陷阱"><a href="#主要的决策陷阱" class="headerlink" title="主要的决策陷阱"></a>主要的决策陷阱</h3><ul>
+<li>沉锚陷阱</li>
+<li>框架陷阱</li>
+<li>有利证据陷阱</li>
+<li>霍布森选择</li>
+<li>布里丹选择</li>
+<li>群体思维陷阱</li>
+</ul>
+<h2 id="效用理论"><a href="#效用理论" class="headerlink" title="效用理论"></a>效用理论</h2><h3 id="理解效用的概念"><a href="#理解效用的概念" class="headerlink" title="理解效用的概念"></a>理解效用的概念</h3><p>效用就是偏好的量化，是数(实值函数)，反映结果值对决策者价值和作用大小的量值 称为效用。</p>
+<h3 id="掌握效用，效用函数的定义"><a href="#掌握效用，效用函数的定义" class="headerlink" title="掌握效用，效用函数的定义"></a>掌握效用，效用函数的定义</h3><p>效用是偏好的量化，反应决策后果值对决策者价值和作用的大小。</p>
+<p>在集合P上的实值函数u，若它和P上的优先关系一致，即P1,P2属于P，P1≽P2，当且仅当u(P1)≽u(p2),则称u为效用函数。</p>
+<h3 id="效用确定的方法"><a href="#效用确定的方法" class="headerlink" title="效用确定的方法"></a>效用确定的方法</h3><h3 id="效用有界性和存在性证明"><a href="#效用有界性和存在性证明" class="headerlink" title="效用有界性和存在性证明"></a>效用有界性和存在性证明</h3><p>连通性（可比性）</p>
+<p>传递性</p>
+<p>替代性（同加或同减）</p>
+<p>连续性（有界性，P1,P3不可能是无穷，存在a,b）。</p>
+<p>同时满足则效用函数必存在</p>
+<h3 id="效用函数的构造方法"><a href="#效用函数的构造方法" class="headerlink" title="效用函数的构造方法"></a>效用函数的构造方法</h3><p>估计效用值函数的方法</p>
+<p>a)  概率当量法</p>
+<p>b)  确定当量法</p>
+<p>c)  增益当量法</p>
+<p>d)  损失当量法</p>
+<ul>
+<li><p>从本质上看，没有区别</p>
+</li>
+<li><p>实验表明，用确定当量法的误差比概率当量法大</p>
+</li>
+<li><p>用增益当量法和损失当量法的误差也比概率当量法大</p>
+</li>
+<li><p>应尽可能使用概率当量法</p>
+</li>
+</ul>
+<p> 离散型后果的效用设定</p>
+<p>连续性后果的效用函数构造</p>
+<p>用解析函数近似效用曲线</p>
+<h3 id="熟悉基数效用和序数效用"><a href="#熟悉基数效用和序数效用" class="headerlink" title="熟悉基数效用和序数效用"></a>熟悉基数效用和序数效用</h3><p>基数效用：用1，2，3等基数来表示效用的大小</p>
+<p>序数效用：用第一、第二等叙述来表示效用的大小</p>
+<p>区别：基数效用定义在展望集上，是实数，涉及到概率；序数效用定义在后果集上，不涉及概率。</p>
+<p>基数效用反映偏好的强度，序数效用不反映偏好强度，只反映偏好次序。</p>
+<h3 id="风险态度与效用关系"><a href="#风险态度与效用关系" class="headerlink" title="风险态度与效用关系"></a>风险态度与效用关系</h3><ul>
+<li><p>风险厌恶——凹函数</p>
+</li>
+<li><p>风险中立——线性函数</p>
+</li>
+<li><p>风险追求——凸函数</p>
+</li>
+</ul>
+<h3 id="货币的效用"><a href="#货币的效用" class="headerlink" title="货币的效用"></a>货币的效用</h3><ul>
+<li><p>单调递增有界</p>
+</li>
+<li><p>钱数较少时为线性</p>
+</li>
+<li><p>x&gt;0，效用为凹函数</p>
+</li>
+<li><p>x<0，效用与x>0处不同</0，效用与x></p>
+</li>
+<li><p>受多因素影响</p>
+</li>
+</ul>
+<h3 id="总效用与边际效用"><a href="#总效用与边际效用" class="headerlink" title="总效用与边际效用"></a>总效用与边际效用</h3><p>总效用：消费者在一定时间内消费一种或多种商品所得到的效用总和。</p>
+<p>边际效用：消费者在一定时间内增加单位商品所引起的总效用增加量。</p>
+<p>边际效用时总效用的导数。</p>
+<p>消费者剩余：</p>
+<h2 id="决策准则及性质"><a href="#决策准则及性质" class="headerlink" title="决策准则及性质"></a>决策准则及性质</h2><h3 id="掌握基本的决策准则"><a href="#掌握基本的决策准则" class="headerlink" title="掌握基本的决策准则"></a>掌握基本的决策准则</h3><h4 id="严格不确定型问题决策准则"><a href="#严格不确定型问题决策准则" class="headerlink" title="严格不确定型问题决策准则"></a>严格不确定型问题决策准则</h4><ul>
+<li>悲观准则</li>
+<li>乐观准则</li>
+<li>最小遗憾法</li>
+<li>等概率准则</li>
+</ul>
+<h4 id="风险型问题决策准则"><a href="#风险型问题决策准则" class="headerlink" title="风险型问题决策准则"></a>风险型问题决策准则</h4><ul>
+<li>最大可能值准则</li>
+<li>贝叶斯准则</li>
+<li>伯努利准则</li>
+<li>E-V准则</li>
+<li>不完全信息情况下的决策准则</li>
+<li>优势原则</li>
+<li>随机策略</li>
+</ul>
+<h3 id="理想决策准则的性质"><a href="#理想决策准则的性质" class="headerlink" title="理想决策准则的性质"></a>理想决策准则的性质</h3><ol>
+<li>完全序</li>
+<li>标号无关性</li>
+<li>标度无关性</li>
+<li>强优势原则</li>
+<li>无关方案独立性</li>
+<li>同一状态下各后果值加常数无关性</li>
+<li>某一行动的各种后果排列次序的无关性</li>
+<li>某种状态下各种后果所在行复制的无关性</li>
+</ol>
+<h2 id="随机优势"><a href="#随机优势" class="headerlink" title="随机优势"></a>随机优势</h2><h3 id="理解随机优势决策规则"><a href="#理解随机优势决策规则" class="headerlink" title="理解随机优势决策规则"></a>理解随机优势决策规则</h3><p>随机优势决策规则就是利用获得的部分信息形成偏序的一种 决策规则。即不需要计算绝对值（效用值），而是通过相对 效用值比较来进行排序</p>
+<h3 id="掌握随机优势解法"><a href="#掌握随机优势解法" class="headerlink" title="掌握随机优势解法"></a>掌握随机优势解法</h3><p>图解法：收益的概率分布曲线</p>
+<h4 id="第一等随机优势"><a href="#第一等随机优势" class="headerlink" title="第一等随机优势"></a>第一等随机优势</h4><ol>
+<li>第一等随机优势要求两个方案的收益的概率分布曲线不发 生交叉但是可以相切或在某个区间重合，处于上方的曲线 所对应的投资方案是无效方案。</li>
+<li>只要有一个有效方案比方案aj 有第一等随机优势， aj 就是 无效方案，无需被所有有效方案优超。</li>
+<li>在无效集中的各方案之间可能存在第一等随机优势。</li>
+<li>有效集中的各个方案的分布函数曲线之间必相交，如果没 有交点，则处于上方的曲线所对应的一定是无效方案。</li>
+<li>与a1 和a2 对应的两条分布函数曲线之间相交意味着：存在u1 ∈ 𝑈1,使𝐸𝑎1 𝑢1 𝑥 &gt; 𝐸𝑎2 𝑢1(𝑥) ， 同时 ∃𝑢2 ∈ 𝑈1,使𝐸𝑎2 𝑢2 𝑥 &gt; 𝐸𝑎1 𝑢2(𝑥) 。</li>
+<li>所有效用函数的决策人都会对有效集与无效集的划分取得 一致意见，没有人会选择无效集中的投资方案。但是当有 效集中的方案数超过一个时，如何从中选择最合意的方案 将因人而异。</li>
+</ol>
+<h4 id="第二等随机优势"><a href="#第二等随机优势" class="headerlink" title="第二等随机优势"></a>第二等随机优势</h4><ol>
+<li><p>上升较早或较快的概率分布曲线所对应的方案不可能有第 二等随机优势。</p>
+</li>
+<li><p>概率分布曲线有交点时，设后上升概率分布曲线所对应的 方案为ai ，另一个方案为aj ，把 Fi 在 Fj 以下部分的面积称 为正面积（晚上升），记为S + ， 把交点以后Fj 在 Fi 以下部 分的面积称为负面积，记为S - ，若任何负面积左侧存在正 面积且正面积大于或等于负面积，则ai 比aj 有SSD，若负面 积左侧的正面积小于负面积，则ai 与aj 之间没有SSD</p>
+</li>
+<li><p>计算D2 (x)并作图，如果D2 (x) 恒非负，且有大于0情 况，则 ai 比aj 有SSD。</p>
+</li>
+</ol>
+<p>D2 (x) 为正面积与负面积差值。</p>
+<h2 id="多属性效用理论"><a href="#多属性效用理论" class="headerlink" title="多属性效用理论"></a>多属性效用理论</h2><h3 id="了解优先序的基本概念"><a href="#了解优先序的基本概念" class="headerlink" title="了解优先序的基本概念"></a>了解优先序的基本概念</h3><h3 id="掌握两个属性的效用函数的相关计算"><a href="#掌握两个属性的效用函数的相关计算" class="headerlink" title="掌握两个属性的效用函数的相关计算"></a>掌握两个属性的效用函数的相关计算</h3><p><img src="/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230328224704180.png" alt="image-20230328224704180"></p>
+<p><img src="/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230328224845729.png" alt="image-20230328224845729"></p>
+<p><img src="/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230328224919135.png" alt="image-20230328224919135"></p>
+<p><img src="/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230328224939519.png" alt="image-20230328224939519"></p>
+<p><img src="/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230328224958728.png" alt="image-20230328224958728"></p>
+<p><img src="/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230328225016324.png" alt="image-20230328225016324"></p>
+<h3 id="偏好独立性分析"><a href="#偏好独立性分析" class="headerlink" title="偏好独立性分析"></a>偏好独立性分析</h3><p><img src="/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230329075851633.png" alt="image-20230329075851633"></p>
+<p>偏好独立判断方法：对任意的y，x的优先顺序一样，则x独立于y；同理，可推y独立于x。</p>
+<p>相互独立则偏好独立。</p>
+<h2 id="Bayes决策"><a href="#Bayes决策" class="headerlink" title="Bayes决策"></a>Bayes决策</h2><h3 id="了解Bayes决策原理"><a href="#了解Bayes决策原理" class="headerlink" title="了解Bayes决策原理"></a>了解Bayes决策原理</h3><p>贝叶斯决策方法是通过调查信息，对先验分布进行修正， 得到后验状态分布，最后基于期望效用最大准则来进行决策 的方法。</p>
+<p><img src="/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/image-20230329080627104.png" alt="image-20230329080627104"></p>
+<h3 id="Bayes原则和Bayes风险"><a href="#Bayes原则和Bayes风险" class="headerlink" title="Bayes原则和Bayes风险"></a>Bayes原则和Bayes风险</h3><h3 id="掌握Bayes决策"><a href="#掌握Bayes决策" class="headerlink" title="掌握Bayes决策"></a>掌握Bayes决策</h3><p>题目条件</p>
+<p>先验</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>状态 $\theta _{j}$</th>
+<th>好$\theta _{1}$</th>
+<th>中$\theta _{2}$</th>
+<th>差$\theta _{3}$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$P(\theta _{j})$</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>收益</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>调查情况（似然）</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th>$P(H_{i}</th>
+<th>\theta _{j})$</th>
+<th>好$\theta _{1}$</th>
+<th>中$\theta _{2}$</th>
+<th>差$\theta _{3}$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$H_{1}$</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>$H_{2}$</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>$H_{3}$</td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>解题步骤</p>
+<p>验前分析</p>
+<p>利用先验求不同方案的期望收益$E(a_{i})=P(\theta _{j})*对应收益值$</p>
+<p>预验分析</p>
+<p>计算全概率</p>
+<div class="table-container">
+<table>
+<thead>
+<tr>
+<th></th>
+<th>$P(H_{i}</th>
+<th>\theta_{1})*P(\theta_{1})$</th>
+<th>$P(H_{i}</th>
+<th>\theta_{2})*P(\theta_{2})$</th>
+<th>$P(H_{i}</th>
+<th>\theta _{3})*P(\theta _{3})$</th>
+<th>$P(H_{i}）$</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>$H_{1}$</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>$H_{2}$</td>
+<td></td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+<tr>
+<td>$H_{3}$</td>
+<td></td>
+<td></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>计算后验概率<br>|         | $P(\theta_{1}|H_{i})$ | $P(\theta_{2}|H_{i})$ | $P(\theta_{3}|H_{i})$ |<br>| ———- | —————————————————- | —————————————————— | ——————————————————- |<br>| $H_{1}$ |                                     |                                      |                                       |<br>| $H_{2}$ |                                     |                                      |                                       |<br>|$H_{3}$|  |                                     |                                      |</p>
+<p>由以上求得：当市场调查为H1时，$E(a_{i})$为H1对应的 后验概率*相应的收益值 求和</p>
+<p>同理，得到H2,H3时收益值。</p>
+<p>计算总的期望收益：$E=\sum P(H_{i})E(a)$</p>
+<p>计算补充信息价值</p>
+<p>验后-验前</p>
+<h3 id="抽样Bayes决策方法及具体计算过程"><a href="#抽样Bayes决策方法及具体计算过程" class="headerlink" title="抽样Bayes决策方法及具体计算过程"></a>抽样Bayes决策方法及具体计算过程</h3><h3 id="掌握信息价值的分析与计算。"><a href="#掌握信息价值的分析与计算。" class="headerlink" title="掌握信息价值的分析与计算。"></a>掌握信息价值的分析与计算。</h3><h4 id="完全信息价值（可表示为-EVPI）"><a href="#完全信息价值（可表示为-EVPI）" class="headerlink" title="完全信息价值（可表示为 EVPI）"></a>完全信息价值（可表示为 EVPI）</h4><p>EVPI=掌握完全信息时收益 - 未掌握完全信息时收益</p>
+<p>完全信息：似然值为1或0。再进行一次贝叶斯流程。</p>
+<h4 id="补充信息价值（可表示为-EVAI）"><a href="#补充信息价值（可表示为-EVAI）" class="headerlink" title="补充信息价值（可表示为 EVAI）"></a>补充信息价值（可表示为 EVAI）</h4><p>EVAI=收益增加值</p>
+<h2 id="多目标决策"><a href="#多目标决策" class="headerlink" title="多目标决策"></a>多目标决策</h2><p>了解多目标决策的目标准则体系，掌握多维效用合并方法。</p>
+<h2 id="层次分析方法（AHP）"><a href="#层次分析方法（AHP）" class="headerlink" title="层次分析方法（AHP）"></a>层次分析方法（AHP）</h2><p>了解和掌握层次分析法的原理，计算过程及一致性检验方法。</p>
+<h2 id="TOPSIS方法（双基点法）"><a href="#TOPSIS方法（双基点法）" class="headerlink" title="TOPSIS方法（双基点法）"></a>TOPSIS方法（双基点法）</h2><p>了解和掌握TOPSIS决策方法的原理，具体计算过程。</p>
+<h2 id="DEA方法"><a href="#DEA方法" class="headerlink" title="DEA方法"></a>DEA方法</h2><p>掌握DEA决策方法,理解DEA有效性的经济意义。</p>
+<h2 id="ELECTRE方法（包括1法和2法）"><a href="#ELECTRE方法（包括1法和2法）" class="headerlink" title="ELECTRE方法（包括1法和2法）"></a>ELECTRE方法（包括1法和2法）</h2><p>掌握级别高于关系的性质及定义，和谐性与非和谐性检验思想，掌握ELECTRE-1方法，ELECTRE-2法分析过程，并能构造级别高于关系图进行方案排序。</p>
+<h2 id="群决策概论及群决策方法"><a href="#群决策概论及群决策方法" class="headerlink" title="群决策概论及群决策方法"></a>群决策概论及群决策方法</h2><p>子解群决策基本概念，分类，熟悉各种投票表决方法及其优缺点。掌握Borda,Condorcet等社会选择函数的计算分析过程，掌握Black-Arrow单峰偏好决策方法。</p>
+<p>四、参考书目</p>
+<p>1、《决策理论与方法》.郭立夫. 北京: 高等教育出版社, 2015年，第二版。</p>
+<p>2、《决策理论与方法》.岳超源. 北京: 科学出版社, 2018年。</p>
+
+    </div>
+
+    
+    
+    
+        
+
+<div>
+<ul class="post-copyright">
+  <li class="post-copyright-author">
+    <strong>本文作者： </strong>宿某人
+  </li>
+  <li class="post-copyright-link">
+    <strong>本文链接：</strong>
+    <a href="https://suqiqi19.github.io/2023/03/28/%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95/" title="决策理论与方法">https://suqiqi19.github.io/2023/03/28/决策理论与方法/</a>
+  </li>
+  <li class="post-copyright-license">
+    <strong>版权声明： </strong>本博客所有文章除特别声明外，均采用 <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" rel="noopener" target="_blank"><i class="fab fa-fw fa-creative-commons"></i>BY-NC-SA</a> 许可协议。转载请注明出处！
+  </li>
+</ul>
+</div>
+
+
+      <footer class="post-footer">
+          <div class="post-tags">
+              <a href="/tags/F0601/" rel="tag"># F0601</a>
+          </div>
+
+        
+
+
+        
+    <div class="post-nav">
+      <div class="post-nav-item">
+    <a href="/2023/03/21/pytorch%E5%AD%A6%E4%B9%A0/" rel="prev" title="pytorch学习">
+      <i class="fa fa-chevron-left"></i> pytorch学习
+    </a></div>
+      <div class="post-nav-item"></div>
+    </div>
+      </footer>
+    
+  </article>
+  
+  
+  
+
+
+
+          </div>
+          
+
+<script>
+  window.addEventListener('tabs:register', () => {
+    let { activeClass } = CONFIG.comments;
+    if (CONFIG.comments.storage) {
+      activeClass = localStorage.getItem('comments_active') || activeClass;
+    }
+    if (activeClass) {
+      let activeTab = document.querySelector(`a[href="#comment-${activeClass}"]`);
+      if (activeTab) {
+        activeTab.click();
+      }
+    }
+  });
+  if (CONFIG.comments.storage) {
+    window.addEventListener('tabs:click', event => {
+      if (!event.target.matches('.tabs-comment .tab-content .tab-pane')) return;
+      let commentClass = event.target.classList[1];
+      localStorage.setItem('comments_active', commentClass);
+    });
+  }
+</script>
+
+        </div>
+          
+  
+  <div class="toggle sidebar-toggle">
+    <span class="toggle-line toggle-line-first"></span>
+    <span class="toggle-line toggle-line-middle"></span>
+    <span class="toggle-line toggle-line-last"></span>
+  </div>
+
+  <aside class="sidebar">
+    <div class="sidebar-inner">
+
+      <ul class="sidebar-nav motion-element">
+        <li class="sidebar-nav-toc">
+          文章目录
+        </li>
+        <li class="sidebar-nav-overview">
+          站点概览
+        </li>
+      </ul>
+
+      <!--noindex-->
+      <div class="post-toc-wrap sidebar-panel">
+          <div class="post-toc motion-element"><ol class="nav"><li class="nav-item nav-level-1"><a class="nav-link" href="#%E5%86%B3%E7%AD%96%E7%90%86%E8%AE%BA%E4%B8%8E%E6%96%B9%E6%B3%95"><span class="nav-number">1.</span> <span class="nav-text">决策理论与方法</span></a><ol class="nav-child"><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%B3%E7%AD%96%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.</span> <span class="nav-text">决策基本概念</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%8C%E6%8F%A1%E5%86%B3%E7%AD%96%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-number">1.1.1.</span> <span class="nav-text">掌握决策的概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E8%A6%81%E7%B4%A0"><span class="nav-number">1.1.2.</span> <span class="nav-text">基本要素</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%9F%BA%E6%9C%AC%E6%AD%A5%E9%AA%A4"><span class="nav-number">1.1.3.</span> <span class="nav-text">基本步骤</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%86%9F%E6%82%89%E4%B8%8D%E5%90%8C%E5%86%B3%E7%AD%96%E9%97%AE%E9%A2%98%E3%80%81%E6%96%B9%E6%B3%95%E7%9A%84%E7%89%B9%E7%82%B9"><span class="nav-number">1.1.4.</span> <span class="nav-text">熟悉不同决策问题、方法的特点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%86%B3%E7%AD%96%E7%9A%84%E5%88%86%E7%B1%BB"><span class="nav-number">1.1.5.</span> <span class="nav-text">决策的分类</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%86%E8%A7%A3%E5%AE%9E%E9%99%85%E5%86%B3%E7%AD%96%E8%BF%87%E7%A8%8B%E7%9A%84%E9%9A%BE%E7%82%B9"><span class="nav-number">1.1.6.</span> <span class="nav-text">了解实际决策过程的难点</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%B8%BB%E8%A6%81%E7%9A%84%E5%86%B3%E7%AD%96%E9%99%B7%E9%98%B1"><span class="nav-number">1.1.7.</span> <span class="nav-text">主要的决策陷阱</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E6%95%88%E7%94%A8%E7%90%86%E8%AE%BA"><span class="nav-number">1.2.</span> <span class="nav-text">效用理论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%90%86%E8%A7%A3%E6%95%88%E7%94%A8%E7%9A%84%E6%A6%82%E5%BF%B5"><span class="nav-number">1.2.1.</span> <span class="nav-text">理解效用的概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%8C%E6%8F%A1%E6%95%88%E7%94%A8%EF%BC%8C%E6%95%88%E7%94%A8%E5%87%BD%E6%95%B0%E7%9A%84%E5%AE%9A%E4%B9%89"><span class="nav-number">1.2.2.</span> <span class="nav-text">掌握效用，效用函数的定义</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%88%E7%94%A8%E7%A1%AE%E5%AE%9A%E7%9A%84%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.3.</span> <span class="nav-text">效用确定的方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%88%E7%94%A8%E6%9C%89%E7%95%8C%E6%80%A7%E5%92%8C%E5%AD%98%E5%9C%A8%E6%80%A7%E8%AF%81%E6%98%8E"><span class="nav-number">1.2.4.</span> <span class="nav-text">效用有界性和存在性证明</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%95%88%E7%94%A8%E5%87%BD%E6%95%B0%E7%9A%84%E6%9E%84%E9%80%A0%E6%96%B9%E6%B3%95"><span class="nav-number">1.2.5.</span> <span class="nav-text">效用函数的构造方法</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%86%9F%E6%82%89%E5%9F%BA%E6%95%B0%E6%95%88%E7%94%A8%E5%92%8C%E5%BA%8F%E6%95%B0%E6%95%88%E7%94%A8"><span class="nav-number">1.2.6.</span> <span class="nav-text">熟悉基数效用和序数效用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E9%A3%8E%E9%99%A9%E6%80%81%E5%BA%A6%E4%B8%8E%E6%95%88%E7%94%A8%E5%85%B3%E7%B3%BB"><span class="nav-number">1.2.7.</span> <span class="nav-text">风险态度与效用关系</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E8%B4%A7%E5%B8%81%E7%9A%84%E6%95%88%E7%94%A8"><span class="nav-number">1.2.8.</span> <span class="nav-text">货币的效用</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%80%BB%E6%95%88%E7%94%A8%E4%B8%8E%E8%BE%B9%E9%99%85%E6%95%88%E7%94%A8"><span class="nav-number">1.2.9.</span> <span class="nav-text">总效用与边际效用</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%86%B3%E7%AD%96%E5%87%86%E5%88%99%E5%8F%8A%E6%80%A7%E8%B4%A8"><span class="nav-number">1.3.</span> <span class="nav-text">决策准则及性质</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%8C%E6%8F%A1%E5%9F%BA%E6%9C%AC%E7%9A%84%E5%86%B3%E7%AD%96%E5%87%86%E5%88%99"><span class="nav-number">1.3.1.</span> <span class="nav-text">掌握基本的决策准则</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E4%B8%A5%E6%A0%BC%E4%B8%8D%E7%A1%AE%E5%AE%9A%E5%9E%8B%E9%97%AE%E9%A2%98%E5%86%B3%E7%AD%96%E5%87%86%E5%88%99"><span class="nav-number">1.3.1.1.</span> <span class="nav-text">严格不确定型问题决策准则</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E9%A3%8E%E9%99%A9%E5%9E%8B%E9%97%AE%E9%A2%98%E5%86%B3%E7%AD%96%E5%87%86%E5%88%99"><span class="nav-number">1.3.1.2.</span> <span class="nav-text">风险型问题决策准则</span></a></li></ol></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%90%86%E6%83%B3%E5%86%B3%E7%AD%96%E5%87%86%E5%88%99%E7%9A%84%E6%80%A7%E8%B4%A8"><span class="nav-number">1.3.2.</span> <span class="nav-text">理想决策准则的性质</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E9%9A%8F%E6%9C%BA%E4%BC%98%E5%8A%BF"><span class="nav-number">1.4.</span> <span class="nav-text">随机优势</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E7%90%86%E8%A7%A3%E9%9A%8F%E6%9C%BA%E4%BC%98%E5%8A%BF%E5%86%B3%E7%AD%96%E8%A7%84%E5%88%99"><span class="nav-number">1.4.1.</span> <span class="nav-text">理解随机优势决策规则</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%8C%E6%8F%A1%E9%9A%8F%E6%9C%BA%E4%BC%98%E5%8A%BF%E8%A7%A3%E6%B3%95"><span class="nav-number">1.4.2.</span> <span class="nav-text">掌握随机优势解法</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%B8%80%E7%AD%89%E9%9A%8F%E6%9C%BA%E4%BC%98%E5%8A%BF"><span class="nav-number">1.4.2.1.</span> <span class="nav-text">第一等随机优势</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E7%AC%AC%E4%BA%8C%E7%AD%89%E9%9A%8F%E6%9C%BA%E4%BC%98%E5%8A%BF"><span class="nav-number">1.4.2.2.</span> <span class="nav-text">第二等随机优势</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E5%B1%9E%E6%80%A7%E6%95%88%E7%94%A8%E7%90%86%E8%AE%BA"><span class="nav-number">1.5.</span> <span class="nav-text">多属性效用理论</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%86%E8%A7%A3%E4%BC%98%E5%85%88%E5%BA%8F%E7%9A%84%E5%9F%BA%E6%9C%AC%E6%A6%82%E5%BF%B5"><span class="nav-number">1.5.1.</span> <span class="nav-text">了解优先序的基本概念</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%8C%E6%8F%A1%E4%B8%A4%E4%B8%AA%E5%B1%9E%E6%80%A7%E7%9A%84%E6%95%88%E7%94%A8%E5%87%BD%E6%95%B0%E7%9A%84%E7%9B%B8%E5%85%B3%E8%AE%A1%E7%AE%97"><span class="nav-number">1.5.2.</span> <span class="nav-text">掌握两个属性的效用函数的相关计算</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E5%81%8F%E5%A5%BD%E7%8B%AC%E7%AB%8B%E6%80%A7%E5%88%86%E6%9E%90"><span class="nav-number">1.5.3.</span> <span class="nav-text">偏好独立性分析</span></a></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#Bayes%E5%86%B3%E7%AD%96"><span class="nav-number">1.6.</span> <span class="nav-text">Bayes决策</span></a><ol class="nav-child"><li class="nav-item nav-level-3"><a class="nav-link" href="#%E4%BA%86%E8%A7%A3Bayes%E5%86%B3%E7%AD%96%E5%8E%9F%E7%90%86"><span class="nav-number">1.6.1.</span> <span class="nav-text">了解Bayes决策原理</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#Bayes%E5%8E%9F%E5%88%99%E5%92%8CBayes%E9%A3%8E%E9%99%A9"><span class="nav-number">1.6.2.</span> <span class="nav-text">Bayes原则和Bayes风险</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%8C%E6%8F%A1Bayes%E5%86%B3%E7%AD%96"><span class="nav-number">1.6.3.</span> <span class="nav-text">掌握Bayes决策</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8A%BD%E6%A0%B7Bayes%E5%86%B3%E7%AD%96%E6%96%B9%E6%B3%95%E5%8F%8A%E5%85%B7%E4%BD%93%E8%AE%A1%E7%AE%97%E8%BF%87%E7%A8%8B"><span class="nav-number">1.6.4.</span> <span class="nav-text">抽样Bayes决策方法及具体计算过程</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#%E6%8E%8C%E6%8F%A1%E4%BF%A1%E6%81%AF%E4%BB%B7%E5%80%BC%E7%9A%84%E5%88%86%E6%9E%90%E4%B8%8E%E8%AE%A1%E7%AE%97%E3%80%82"><span class="nav-number">1.6.5.</span> <span class="nav-text">掌握信息价值的分析与计算。</span></a><ol class="nav-child"><li class="nav-item nav-level-4"><a class="nav-link" href="#%E5%AE%8C%E5%85%A8%E4%BF%A1%E6%81%AF%E4%BB%B7%E5%80%BC%EF%BC%88%E5%8F%AF%E8%A1%A8%E7%A4%BA%E4%B8%BA-EVPI%EF%BC%89"><span class="nav-number">1.6.5.1.</span> <span class="nav-text">完全信息价值（可表示为 EVPI）</span></a></li><li class="nav-item nav-level-4"><a class="nav-link" href="#%E8%A1%A5%E5%85%85%E4%BF%A1%E6%81%AF%E4%BB%B7%E5%80%BC%EF%BC%88%E5%8F%AF%E8%A1%A8%E7%A4%BA%E4%B8%BA-EVAI%EF%BC%89"><span class="nav-number">1.6.5.2.</span> <span class="nav-text">补充信息价值（可表示为 EVAI）</span></a></li></ol></li></ol></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%A4%9A%E7%9B%AE%E6%A0%87%E5%86%B3%E7%AD%96"><span class="nav-number">1.7.</span> <span class="nav-text">多目标决策</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E5%B1%82%E6%AC%A1%E5%88%86%E6%9E%90%E6%96%B9%E6%B3%95%EF%BC%88AHP%EF%BC%89"><span class="nav-number">1.8.</span> <span class="nav-text">层次分析方法（AHP）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#TOPSIS%E6%96%B9%E6%B3%95%EF%BC%88%E5%8F%8C%E5%9F%BA%E7%82%B9%E6%B3%95%EF%BC%89"><span class="nav-number">1.9.</span> <span class="nav-text">TOPSIS方法（双基点法）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#DEA%E6%96%B9%E6%B3%95"><span class="nav-number">1.10.</span> <span class="nav-text">DEA方法</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#ELECTRE%E6%96%B9%E6%B3%95%EF%BC%88%E5%8C%85%E6%8B%AC1%E6%B3%95%E5%92%8C2%E6%B3%95%EF%BC%89"><span class="nav-number">1.11.</span> <span class="nav-text">ELECTRE方法（包括1法和2法）</span></a></li><li class="nav-item nav-level-2"><a class="nav-link" href="#%E7%BE%A4%E5%86%B3%E7%AD%96%E6%A6%82%E8%AE%BA%E5%8F%8A%E7%BE%A4%E5%86%B3%E7%AD%96%E6%96%B9%E6%B3%95"><span class="nav-number">1.12.</span> <span class="nav-text">群决策概论及群决策方法</span></a></li></ol></li></ol></div>
+      </div>
+      <!--/noindex-->
+
+      <div class="site-overview-wrap sidebar-panel">
+        <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+    <img class="site-author-image" itemprop="image" alt="宿某人"
+      src="/images/avatar.jpg">
+  <p class="site-author-name" itemprop="name">宿某人</p>
+  <div class="site-description" itemprop="description">生命以负熵为生</div>
+</div>
+<div class="site-state-wrap motion-element">
+  <nav class="site-state">
+      <div class="site-state-item site-state-posts">
+          <a href="/archives/">
+        
+          <span class="site-state-item-count">8</span>
+          <span class="site-state-item-name">日志</span>
+        </a>
+      </div>
+      <div class="site-state-item site-state-categories">
+            <a href="/categories/">
+          
+        <span class="site-state-item-count">6</span>
+        <span class="site-state-item-name">分类</span></a>
+      </div>
+      <div class="site-state-item site-state-tags">
+            <a href="/tags/">
+          
+        <span class="site-state-item-count">7</span>
+        <span class="site-state-item-name">标签</span></a>
+      </div>
+  </nav>
+</div>
+  <div class="links-of-author motion-element">
+      <span class="links-of-author-item">
+        <a href="/1323124280@qq.com" title="E-Mail → 1323124280@qq.com"><i class="fa fa-envelope fa-fw"></i>E-Mail</a>
+      </span>
+  </div>
+  <div class="cc-license motion-element" itemprop="license">
+    <a href="https://creativecommons.org/licenses/by-nc-sa/4.0/" class="cc-opacity" rel="noopener" target="_blank"><img src="/images/cc-by-nc-sa.svg" alt="Creative Commons"></a>
+  </div>
+
+
+
+      </div>
+		    
+    <script type="text/javascript" charset="utf-8" src="/js/tagcloud.js"></script>
+    <script type="text/javascript" charset="utf-8" src="/js/tagcanvas.js"></script>
+    <div class="widget-wrap">
+        <h3 class="widget-title">Tag Cloud</h3>
+        <div id="myCanvasContainer" class="widget tagcloud">
+            <canvas width="250" height="250" id="resCanvas" style="width=100%">
+                <ul class="tag-list" itemprop="keywords"><li class="tag-list-item"><a class="tag-list-link" href="/tags/F0601/" rel="tag">F0601</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/gitee/" rel="tag">gitee</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/hexo/" rel="tag">hexo</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/pytorch/" rel="tag">pytorch</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%A4%9A%E6%99%BA%E8%83%BD%E4%BD%93%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" rel="tag">多智能体强化学习</a><span class="tag-list-count">1</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E5%BC%BA%E5%8C%96%E5%AD%A6%E4%B9%A0/" rel="tag">强化学习</a><span class="tag-list-count">2</span></li><li class="tag-list-item"><a class="tag-list-link" href="/tags/%E6%AF%95%E8%AE%BE/" rel="tag">毕设</a><span class="tag-list-count">1</span></li></ul>
+            </canvas>
+        </div>
+    </div>
+    
+
+    </div>
+  </aside>
+  <div id="sidebar-dimmer"></div>
+
+
+      </div>
+    </main>
+
+    <footer class="footer">
+      <div class="footer-inner">
+        
+
+        
+
+<div class="copyright">
+  
+  &copy; 
+  <span itemprop="copyrightYear">2023</span>
+  <span class="with-love">
+    <i class="fa fa-heart"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">宿某人</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-chart-area"></i>
+    </span>
+    <span title="站点总字数">39k</span>
+    <span class="post-meta-divider">|</span>
+    <span class="post-meta-item-icon">
+      <i class="fa fa-coffee"></i>
+    </span>
+    <span title="站点阅读时长">35 分钟</span>
+</div>
+  <div class="powered-by">由 <a href="https://hexo.io/" class="theme-link" rel="noopener" target="_blank">Hexo</a> & <a href="https://theme-next.org/" class="theme-link" rel="noopener" target="_blank">NexT.Gemini</a> 强力驱动
+  </div>
+
+        
+
+
+
+
+
+
+
+
+      </div>
+    </footer>
+  </div>
+
+  
+  
+  <script color='0,0,0' opacity='0.5' zIndex='-1' count='150' src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  <script size="300" alpha="0.6" zIndex="-1" src="/lib/canvas-ribbon/canvas-ribbon.js"></script>
+  <script src="/lib/anime.min.js"></script>
+  <script src="/lib/velocity/velocity.min.js"></script>
+  <script src="/lib/velocity/velocity.ui.min.js"></script>
+
+<script src="/js/utils.js"></script>
+
+<script src="/js/motion.js"></script>
+
+
+<script src="/js/schemes/pisces.js"></script>
+
+
+<script src="/js/next-boot.js"></script>
+
+<script src="/js/bookmark.js"></script>
+
+
+
+
+  
+
+
+
+
+  
+<script src="/js/local-search.js"></script>
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+  
+      
+
+<script>
+  if (typeof MathJax === 'undefined') {
+    window.MathJax = {
+      loader: {
+        source: {
+          '[tex]/amsCd': '[tex]/amscd',
+          '[tex]/AMScd': '[tex]/amscd'
+        }
+      },
+      tex: {
+        inlineMath: {'[+]': [['$', '$']]},
+        tags: 'ams'
+      },
+      options: {
+        renderActions: {
+          findScript: [10, doc => {
+            document.querySelectorAll('script[type^="math/tex"]').forEach(node => {
+              const display = !!node.type.match(/; *mode=display/);
+              const math = new doc.options.MathItem(node.textContent, doc.inputJax[0], display);
+              const text = document.createTextNode('');
+              node.parentNode.replaceChild(text, node);
+              math.start = {node: text, delim: '', n: 0};
+              math.end = {node: text, delim: '', n: 0};
+              doc.math.push(math);
+            });
+          }, '', false],
+          insertedScript: [200, () => {
+            document.querySelectorAll('mjx-container').forEach(node => {
+              let target = node.parentNode;
+              if (target.nodeName.toLowerCase() === 'li') {
+                target.parentNode.classList.add('has-jax');
+              }
+            });
+          }, '', false]
+        }
+      }
+    };
+    (function () {
+      var script = document.createElement('script');
+      script.src = '//cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js';
+      script.defer = true;
+      document.head.appendChild(script);
+    })();
+  } else {
+    MathJax.startup.document.state(0);
+    MathJax.texReset();
+    MathJax.typeset();
+  }
+</script>
+
+    
+
+  
+
+      <!-- 页面点击小红心 -->
+    <script type="text/javascript" src="/js/clicklove.js"></script>
+
+<script src="/live2dw/lib/L2Dwidget.min.js?094cbace49a39548bed64abff5988b05"></script><script>L2Dwidget.init({"pluginRootPath":"live2dw/","pluginJsPath":"lib/","pluginModelPath":"assets/","tagMode":false,"model":{"jsonPath":"/live2dw/assets/wanko.model.json"},"display":{"position":"right","width":150,"height":300},"mobile":{"show":false},"log":false});</script></body>
+</html>
